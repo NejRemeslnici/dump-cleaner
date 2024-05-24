@@ -15,9 +15,9 @@ module DumpCleaner
     end
 
     def run
-      config["anonymizations"].each do |anonymization|
-        table = anonymization["table"]
-        table_info = table_info(database: anonymization["database"], table:)
+      config["cleanups"].each do |cleanup|
+        table = cleanup["table"]
+        table_info = table_info(db: cleanup["db"], table:)
         p table_info
 
         TsvTableAnonymizer.new(table, config:, table_info:).run
@@ -26,8 +26,8 @@ module DumpCleaner
 
     private
 
-    def table_info(database:, table:)
-      JSON.parse(File.read("#{source_dump_path}/#{database}@#{table}.json"))
+    def table_info(db:, table:)
+      JSON.parse(File.read("#{source_dump_path}/#{db}@#{table}.json"))
     end
 
     def config
