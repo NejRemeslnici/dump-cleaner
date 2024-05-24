@@ -3,8 +3,8 @@
 require_relative "lib/dump_cleaner/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "mysql_dump_anonymizer"
-  spec.version = MysqlDumpAnonymizer::VERSION
+  spec.name = "dump_cleaner"
+  spec.version = DumpCleaner::VERSION
   spec.authors = ["Matouš Borák"]
   spec.email = ["matous.borak@nejremeslnici.cz"]
 
