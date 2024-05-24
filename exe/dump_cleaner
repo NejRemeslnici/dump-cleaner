@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+
+require "optparse"
+require "dump_cleaner/processor"
+
+DEFAULT_OPTIONS = {
+  config_file: "config/dump_cleaner.yml"
+}.freeze
+
+options = DEFAULT_OPTIONS.dup
+OptionParser.new do |parser|
+  parser.banner = "Usage: dump_cleaner [options]"
+
+  parser.on("-cCONFIG", "--config=CONFIG", "Configuration file path") do |option|
+    options[:config_file] = option
+  end
+end.parse!
+
+DumpCleaner::Processor.new(options).run

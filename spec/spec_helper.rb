@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "mysql_dump_anonymizer"
+require "dump_cleaner"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
