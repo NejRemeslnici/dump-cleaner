@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
-require_relative "dump_cleaner/tsv_table_anonymizer"
+require_relative "dump_cleaner/fake_data"
+require_relative "dump_cleaner/processor"
 require_relative "dump_cleaner/version"
+require_relative "dump_cleaner/cleaners/mysql_shell_dump_cleaner"
+require_relative "dump_cleaner/fake_data_processors/nil_processor"
+require_relative "dump_cleaner/fake_data_processors/bytes_length_grouper"
 
 module DumpCleaner
   class Error < StandardError; end

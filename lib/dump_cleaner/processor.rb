@@ -1,6 +1,5 @@
 require "yaml"
 require "json"
-require "dump_cleaner/tsv_table_anonymizer"
 
 module DumpCleaner
   class Processor
@@ -9,29 +8,24 @@ module DumpCleaner
     def initialize(options)
       @options = options
       p @options
-
-      config = YAML.load_file("config/dump_cleaner.yml")
-      pp config
     end
 
     def run
       config["cleanups"].each do |cleanup|
-        table = cleanup["table"]
-        table_info = table_info(db: cleanup["db"], table:)
-        p table_info
-
-        TsvTableAnonymizer.new(table, config:, table_info:).run
+        Cleaners::MysqlShellDumpCleaner.new(cleanup:, config:, options:).run
       end
+
+      Cleaners::MysqlShellDumpCleaner.copy_unchanged_files(config:, options:)
     end
 
     private
 
-    def table_info(db:, table:)
-      JSON.parse(File.read("#{source_dump_path}/#{db}@#{table}.json"))
+    def config
+      @config ||= load_config_file(options[:config_file])
     end
 
-    def config
-      @config ||= YAML.load_file(options[:config_file])
+    def load_config_file(config_file)
+      YAML.load_file(config_file)
     end
 
     def source_dump_path
