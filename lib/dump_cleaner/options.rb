@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DumpCleaner
   class Options
     require "optparse"
