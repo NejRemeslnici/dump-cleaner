@@ -13,11 +13,16 @@ module DumpCleaner
     end
 
     def run
-      config["cleanups"].each do |cleanup|
-        Cleaners::MysqlShellDumpCleaner.new(cleanup:, config:, options:).run
-      end
+      cleaner_class = case config.dig("dump", "format")
+                      when "mysql_shell_zst"
+                        Cleaners::MysqlShellDumpCleaner
+                      else
+                        raise "Unsupported dump format #{config.dig('dump', 'format')}"
+                      end
 
-      Cleaners::MysqlShellDumpCleaner.copy_unchanged_files(config:, options:)
+      cleaner = cleaner_class.new(config:, options:)
+      cleaner.clean
+      cleaner.post_cleanup
     end
 
     private

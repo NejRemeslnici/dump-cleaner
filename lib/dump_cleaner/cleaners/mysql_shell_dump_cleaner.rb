@@ -9,39 +9,39 @@ module DumpCleaner
       require "zlib"
       require "fileutils"
 
-      attr_reader :cleanup, :table, :config, :options, :fake_data
+      attr_reader :config, :options, :fake_data
 
-      def initialize(cleanup:, config:, options:)
-        @cleanup = cleanup
-        @table = cleanup["table"]
+      def initialize(config:, options:)
         @config = config
         @options = options
         @fake_data = FakeData.instance
         @fake_data.config = config["fake_data"]
       end
 
-      def run
-        @table_info = table_info(db: cleanup["db"], table: cleanup["table"])
-        table_file_part = "#{cleanup["db"]}@#{cleanup["table"]}"
+      def clean
+        config["cleanups"].each do |cleanup|
+          @table_info = table_info(db: cleanup["db"], table: cleanup["table"])
+          table_file_part = "#{cleanup["db"]}@#{cleanup["table"]}"
 
-        prepare_destination_dump
+          prepare_destination_dump
 
-        Dir.glob("#{options[:source_dump_path]}/#{table_file_part}@@*.tsv.zst").each do |file|
-          p file
-          Open3.pipeline_r(["zstd", "-dc", file], ["head", "-n", "10000000"]) do |tsv_data, wait_thread|
-            destination_file = file.sub(options[:source_dump_path], options[:destination_dump_path])
-            p destination_file
+          Dir.glob("#{options[:source_dump_path]}/#{table_file_part}@@*.tsv.zst").each do |file|
+            p file
+            Open3.pipeline_r(["zstd", "-dc", file], ["head", "-n", "10000000"]) do |tsv_data, wait_thread|
+              destination_file = file.sub(options[:source_dump_path], options[:destination_dump_path])
+              p destination_file
 
-            Open3.pipeline_w(["zstd", "-qfo", destination_file]) do |zstd_out, wait_thread|
-              tsv_data.each_line do |line|
-                zstd_out.print cleaned_line(line, cleanup:)
+              Open3.pipeline_w(["zstd", "-qfo", destination_file]) do |zstd_out, wait_thread|
+                tsv_data.each_line do |line|
+                  zstd_out.print cleaned_line(line, cleanup:)
+                end
               end
             end
           end
         end
       end
 
-      def self.copy_unchanged_files(config:, options:)
+      def post_cleanup
         Dir.glob("#{options[:source_dump_path]}/*").each do |file|
           destination_file = file.sub(options[:source_dump_path], options[:destination_dump_path])
           FileUtils.cp(file, destination_file, preserve: true) unless File.exist?(destination_file)
