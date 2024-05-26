@@ -3,7 +3,6 @@
 module DumpCleaner
   module Cleaners
     class MysqlShellDumpCleaner < BaseCleaner
-      require "yaml"
       require "json"
       require "open3"
       require "zlib"
@@ -52,8 +51,6 @@ module DumpCleaner
       end
 
       def cleaned_line(line, cleanup:)
-        remove_invalid_characters!(line)
-
         record = line.split("\t")
 
         cleanup["columns"].each do |column|
@@ -77,15 +74,6 @@ module DumpCleaner
         end
 
         record.join("\t")
-      end
-
-      def remove_invalid_characters!(line)
-        return unless line =~ /[\u0080-\u009f]/
-
-        warn "=== Warning: input contains invalid UTF-8 characters"
-        warn line.split("").map(&:codepoints).map { |c| c.any? { _1.between?(0x80, 0x9f) } ? c.map { "\\u00#{_1.to_s(16)}" } : c.pack("U*")  }.join
-
-        line.gsub!(/[\u0080-\u009f]/, "  ")
       end
     end
   end
