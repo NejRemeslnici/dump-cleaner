@@ -8,7 +8,7 @@ module DumpCleaner
       def initialize(config:, options:)
         @config = config
         @options = options
-        @fake_data = FakeData.instance
+        @fake_data = FakeData::FakeData.instance
         @fake_data.config = config["fake_data"]
       end
 
