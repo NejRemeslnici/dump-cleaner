@@ -1,21 +1,25 @@
 # frozen_string_literal: true
 
-require "singleton"
-
 module DumpCleaner
   module FakeData
     class FakeData
-      include Singleton
+      attr_reader :config
+      attr_accessor :common_post_processors
 
-      attr_accessor :config, :common_post_processors
-
-      def initialize
+      def initialize(config:)
         @data = {}
+        @config = config
         @common_post_processors = []
       end
 
       def get(type)
         @data[type] ||= process_pipeline(type:, pipeline: config.dig(type, "pipeline") || [])
+      end
+
+      private
+
+      def process_pipeline(type:, pipeline: [])
+        pipeline_processors(pipeline:).reduce(nil) { |data, processor| processor.call(data) }
       end
 
       def pipeline_processors(pipeline: [])
@@ -27,14 +31,6 @@ module DumpCleaner
                   .process(data, *processor_config["params"])
           end
         end
-      end
-
-      def process_pipeline(type:, pipeline: [])
-        processors = pipeline_processors(pipeline:)
-
-        data = nil
-        processors.each { data = _1.call(data) }
-        data
       end
     end
   end

@@ -8,8 +8,7 @@ module DumpCleaner
       def initialize(config:, options:)
         @config = config
         @options = options
-        @fake_data = FakeData::FakeData.instance
-        @fake_data.config = config["fake_data"]
+        @fake_data = FakeData::FakeData.new(config: config["fake_data"])
       end
 
       def pre_cleanup
