@@ -2,7 +2,7 @@
 
 module DumpCleaner
   module FakeData
-    module PreProcessors
+    module Processors
       class BytesLengthGrouper
         def self.process(data)
           data.group_by { _1.bytes.length }

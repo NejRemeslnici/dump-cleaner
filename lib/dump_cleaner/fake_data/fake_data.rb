@@ -7,34 +7,34 @@ module DumpCleaner
     class FakeData
       include Singleton
 
-      attr_accessor :config, :pre_processors
+      attr_accessor :config, :common_post_processors
 
       def initialize
         @data = {}
-        @pre_processors = []
+        @common_post_processors = []
       end
 
       def get(type)
-        @data[type] ||= load(type:, file: @config.dig(type, "file"), processors: all_pre_processors(type:))
+        @data[type] ||= process_pipeline(type:, pipeline: config.dig(type, "pipeline") || [])
       end
 
-      def all_pre_processors(type:)
-        pre_processors = self.pre_processors.dup
+      def pipeline_processors(pipeline: [])
+        (pipeline + common_post_processors).map do |processor_config|
+          processor_class = processor_config["class"].split("_").map(&:capitalize).join
 
-        pre_processor_classes = config.dig(type, "pre_processors")
-        return pre_processors unless pre_processor_classes
-
-        pre_processor_classes.map! { "DumpCleaner::FakeData::PreProcessors::#{_1}" unless _1.include?("::") }
-        pre_processor_classes.each { pre_processors << Kernel.const_get(_1) }
-        pre_processors
-      end
-
-      def load(type:, file:, processors: [])
-        @data[type] ||= begin
-          data = YAML.load_file(file)
-          processors.each { data = _1.process(data) }
-          data
+          lambda do |data|
+            Kernel.const_get("DumpCleaner::FakeData::Processors::#{processor_class}")
+                  .process(data, *processor_config["params"])
+          end
         end
+      end
+
+      def process_pipeline(type:, pipeline: [])
+        processors = pipeline_processors(pipeline:)
+
+        data = nil
+        processors.each { data = _1.call(data) }
+        data
       end
     end
   end
