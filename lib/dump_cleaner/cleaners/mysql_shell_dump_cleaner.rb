@@ -61,17 +61,18 @@ module DumpCleaner
           id_column_index = @table_info.dig("options", "columns").index(cleanup["id_column"])
           # p column_index, id_column_index
 
-          unless (data = record[column_index]) == "\\N"
-            id = record[id_column_index]
-            fake_data_pool = fake_data.get(column["type"])[data.bytes.length]
+          data = record[column_index]
+          next if data == "\\N"
 
-            if fake_data_pool
-              chosen_fake_data_index = Zlib.crc32(id.to_s) % fake_data_pool.size
-              record[column_index] = fake_data_pool[chosen_fake_data_index]
-            else
-              STDERR.puts "ID #{id}: Cannot find appropriate fake data for '#{data}', using some random string instead."
-              record[column_index] = ("anonymized #{column["type"]} " * 10).slice(0...data.bytes.length)
-            end
+          id = record[id_column_index]
+          fake_data_pool = fake_data.get(column["type"])[data.bytes.length]
+
+          if fake_data_pool
+            chosen_fake_data_index = Zlib.crc32(id.to_s) % fake_data_pool.size
+            record[column_index] = fake_data_pool[chosen_fake_data_index]
+          else
+            warn "ID #{id}: Cannot find appropriate fake data for '#{data}', using some random string instead."
+            record[column_index] = ("anonymized #{column["type"]} " * 10).slice(0...data.bytes.length)
           end
         end
 
@@ -79,12 +80,12 @@ module DumpCleaner
       end
 
       def remove_invalid_characters!(line)
-        if line =~ /[\u0080-\u009f]/
-          warn "=== Warning: input contains invalid UTF-8 characters"
-          warn line.split("").map(&:codepoints).map { |c| c.any? { _1.between?(0x80, 0x9f) } ? c.map { "\\u00#{_1.to_s(16)}" } : c.pack("U*")  }.join
+        return unless line =~ /[\u0080-\u009f]/
 
-          line.gsub!(/[\u0080-\u009f]/, "  ")
-        end
+        warn "=== Warning: input contains invalid UTF-8 characters"
+        warn line.split("").map(&:codepoints).map { |c| c.any? { _1.between?(0x80, 0x9f) } ? c.map { "\\u00#{_1.to_s(16)}" } : c.pack("U*")  }.join
+
+        line.gsub!(/[\u0080-\u009f]/, "  ")
       end
     end
   end
