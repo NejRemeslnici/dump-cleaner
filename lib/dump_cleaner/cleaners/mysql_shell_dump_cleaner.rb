@@ -2,28 +2,21 @@
 
 module DumpCleaner
   module Cleaners
-    class MysqlShellDumpCleaner
+    class MysqlShellDumpCleaner < BaseCleaner
       require "yaml"
       require "json"
       require "open3"
       require "zlib"
       require "fileutils"
 
-      attr_reader :config, :options, :fake_data
-
-      def initialize(config:, options:)
-        @config = config
-        @options = options
-        @fake_data = FakeData.instance
-        @fake_data.config = config["fake_data"]
+      def pre_cleanup
+        prepare_destination_dump
       end
 
       def clean
         config["cleanups"].each do |cleanup|
           @table_info = table_info(db: cleanup["db"], table: cleanup["table"])
           table_file_part = "#{cleanup["db"]}@#{cleanup["table"]}"
-
-          prepare_destination_dump
 
           Dir.glob("#{options[:source_dump_path]}/#{table_file_part}@@*.tsv.zst").each do |file|
             p file
