@@ -10,7 +10,6 @@ module DumpCleaner
 
       def pre_cleanup
         prepare_destination_dump
-        fake_data.source.common_post_processors << { "step" => "GroupByByteLength" }
       end
 
       def clean
