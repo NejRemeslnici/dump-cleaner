@@ -10,7 +10,7 @@ module DumpCleaner
 
       def pre_cleanup
         prepare_destination_dump
-        fake_data.common_post_processors << { "class" => "bytes_length_grouper" }
+        fake_data.common_post_processors << { "class" => "BytesLengthGrouper" }
       end
 
       def clean

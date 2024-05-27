@@ -24,10 +24,8 @@ module DumpCleaner
 
       def pipeline_processors(pipeline: [])
         (pipeline + common_post_processors).map do |processor_config|
-          processor_class = processor_config["class"].split("_").map(&:capitalize).join
-
           lambda do |data|
-            Kernel.const_get("DumpCleaner::FakeData::Processors::#{processor_class}")
+            Kernel.const_get("DumpCleaner::FakeData::Processors::#{processor_config['class']}")
                   .process(data, *processor_config["params"])
           end
         end
