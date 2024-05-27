@@ -4,14 +4,19 @@ module DumpCleaner
   module CleanupData
     module CleaningSteps
       class SelectGenderGroup
+        FEMALE_REGEXPS = {
+          "first_name" => /[ae]$/i,
+          "last_name" => /(ová|ova|ská)$/i
+        }.freeze
+
         def run(data, type:, orig_value:, id:)
-          data[guess_gender(orig_value)]
+          data[guess_gender(type:, orig_value:)]
         end
 
         private
 
-        def guess_gender(orig_value)
-          orig_value.end_with?("a") || orig_value.end_with?("e") ? "female" : "male"
+        def guess_gender(type:, orig_value:)
+          orig_value.match?(FEMALE_REGEXPS[type]) ? "female" : "male"
         end
       end
     end
