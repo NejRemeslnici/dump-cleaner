@@ -22,7 +22,7 @@ module DumpCleaner
         steps.map do |step_config|
           params = (step_config["params"] || {}).transform_keys(&:to_sym)
           lambda do |data:, type:|
-            Kernel.const_get("DumpCleaner::CleanupData::SourceSteps::#{step_config['step']}")
+            Kernel.const_get("DumpCleaner::CleanupData::SourceSteps::#{step_config['step']}").new
                   .run(data, type:, **params)
           end
         end

@@ -4,7 +4,7 @@ module DumpCleaner
   module CleanupData
     module SourceSteps
       class GroupByByteLength
-        def self.run(data, type:)
+        def run(data, type:)
           data.group_by { "#{_1.length}-#{_1.bytes.length}" }
         end
       end

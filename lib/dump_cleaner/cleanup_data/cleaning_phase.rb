@@ -26,7 +26,7 @@ module DumpCleaner
         @workflow_steps[cache_key] ||= steps.map do |step_config|
           params = (step_config["params"] || {}).transform_keys(&:to_sym)
           lambda do |data:, type:, orig_value:, id:|
-            Kernel.const_get("DumpCleaner::CleanupData::CleaningSteps::#{step_config['step']}")
+            Kernel.const_get("DumpCleaner::CleanupData::CleaningSteps::#{step_config['step']}").new
                   .run(data, type:, orig_value:, id:, **params)
           end
         end

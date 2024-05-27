@@ -4,7 +4,7 @@ module DumpCleaner
   module CleanupData
     module SourceSteps
       class LoadYamlFile
-        def self.run(_data, type:, file:)
+        def run(data, type:, file:, key: nil)
           YAML.load_file(file)
         end
       end
