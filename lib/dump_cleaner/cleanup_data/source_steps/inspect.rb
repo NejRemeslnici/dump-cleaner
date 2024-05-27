@@ -7,9 +7,24 @@ module DumpCleaner
 
       class Inspect
         def run(data, type:, values: 10)
-          puts "Inspecting '#{type}' data:"
-          PP.singleline_pp data
+          puts "Inspecting '#{type}' data (first #{values} values):"
+          pp subset(data, values:)
           data
+        end
+
+        private
+
+        def subset(data, values: 10)
+          case data
+          when Array
+            subset_data = data.take(values)
+            subset_data.each_with_index { |element, index| subset_data[index] = subset(element, values:) }
+          when Hash
+            subset_data = data.take(values).to_h
+            subset_data.each_key { |key| subset_data[key] = subset(subset_data[key], values:) }
+          else
+            subset_data = data
+          end
         end
       end
     end
