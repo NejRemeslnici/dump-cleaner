@@ -2,18 +2,16 @@
 
 module DumpCleaner
   module FakeData
-    class FakeData
-      attr_reader :config
+    class Source
       attr_accessor :common_post_processors
 
-      def initialize(config:)
+      def initialize
         @data = {}
-        @config = config
         @common_post_processors = []
       end
 
-      def get(type)
-        @data[type] ||= process_pipeline(type:, pipeline: config.dig(type, "pipeline") || [])
+      def get(type, pipeline: [])
+        @data[type] ||= process_pipeline(type:, pipeline:)
       end
 
       private
@@ -25,7 +23,7 @@ module DumpCleaner
       def pipeline_processors(pipeline: [])
         (pipeline + common_post_processors).map do |processor_config|
           lambda do |data|
-            Kernel.const_get("DumpCleaner::FakeData::Processors::#{processor_config['class']}")
+            Kernel.const_get("DumpCleaner::FakeData::Processors::#{processor_config['step']}")
                   .process(data, *processor_config["params"])
           end
         end

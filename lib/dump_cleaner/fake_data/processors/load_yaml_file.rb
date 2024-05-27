@@ -3,7 +3,7 @@
 module DumpCleaner
   module FakeData
     module Processors
-      class YamlFileLoader
+      class LoadYamlFile
         def self.process(_data, file)
           YAML.load_file(file)
         end

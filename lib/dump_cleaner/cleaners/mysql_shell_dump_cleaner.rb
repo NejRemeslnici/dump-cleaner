@@ -10,7 +10,7 @@ module DumpCleaner
 
       def pre_cleanup
         prepare_destination_dump
-        fake_data.common_post_processors << { "class" => "BytesLengthGrouper" }
+        fake_data.source.common_post_processors << { "step" => "GroupByByteLength" }
       end
 
       def clean
@@ -59,19 +59,11 @@ module DumpCleaner
           id_column_index = @table_info.dig("options", "columns").index(cleanup["id_column"])
           # p column_index, id_column_index
 
-          data = record[column_index]
-          next if data == "\\N"
+          next if record[column_index] == "\\N"
 
-          id = record[id_column_index]
-          fake_data_pool = fake_data.get(column["type"])[data.bytes.length]
-
-          if fake_data_pool
-            chosen_fake_data_index = Zlib.crc32(id.to_s) % fake_data_pool.size
-            record[column_index] = fake_data_pool[chosen_fake_data_index]
-          else
-            warn "ID #{id}: Cannot find appropriate fake data for '#{data}', using some random string instead."
-            record[column_index] = ("anonymized #{column["type"]} " * 10).slice(0...data.bytes.length)
-          end
+          record[column_index] = fake_data.get(type: column["type"],
+                                               value: record[column_index],
+                                               id: record[id_column_index])
         end
 
         record.join("\t")
