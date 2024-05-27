@@ -8,21 +8,21 @@ module DumpCleaner
       end
 
       def data_for(type, steps: [])
-        @data[type] ||= process_steps(type:, steps:)
+        @data[type] ||= run_workflow(type:, steps:)
       end
 
       private
 
-      def process_steps(type:, steps: [])
-        steps_processors(steps:).reduce(nil) { |data, processor| processor.call(data, type) }
+      def run_workflow(type:, steps: [])
+        workflow_steps(steps:).reduce(nil) { |data, step| step.call(data:, type:) }
       end
 
-      def steps_processors(steps: [])
+      def workflow_steps(steps: [])
         steps.map do |step_config|
           params = (step_config["params"] || {}).transform_keys(&:to_sym)
-          lambda do |data, type|
+          lambda do |data:, type:|
             Kernel.const_get("DumpCleaner::CleanupData::SourceSteps::#{step_config['step']}")
-                  .process(data, type:, **params)
+                  .run(data, type:, **params)
           end
         end
       end

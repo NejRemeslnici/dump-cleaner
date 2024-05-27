@@ -4,7 +4,7 @@ module DumpCleaner
   module CleanupData
     module CleaningSteps
       class DeterministicSample
-        def self.process(data, type:, orig_value:, id:)
+        def self.run(data, type:, orig_value:, id:)
           return unless data
 
           data[Zlib.crc32(id.to_s) % data.size]
