@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DumpCleaner
-  module FakeData
+  module CleanupData
     module SourceSteps
       class GroupByByteLength
         def self.process(data)

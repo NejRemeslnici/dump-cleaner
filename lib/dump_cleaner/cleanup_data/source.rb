@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DumpCleaner
-  module FakeData
+  module CleanupData
     class Source
       def initialize
         @data = {}
@@ -21,7 +21,7 @@ module DumpCleaner
         pipeline.map do |processor_config|
           params = (processor_config["params"] || {}).transform_keys(&:to_sym)
           lambda do |data|
-            Kernel.const_get("DumpCleaner::FakeData::SourceSteps::#{processor_config['step']}")
+            Kernel.const_get("DumpCleaner::CleanupData::SourceSteps::#{processor_config['step']}")
                   .process(data, **params)
           end
         end

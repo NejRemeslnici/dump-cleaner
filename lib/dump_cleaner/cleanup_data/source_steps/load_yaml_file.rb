@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DumpCleaner
-  module FakeData
+  module CleanupData
     module SourceSteps
       class LoadYamlFile
         def self.process(_data, file:)

@@ -60,9 +60,9 @@ module DumpCleaner
 
           next if record[column_index] == "\\N"
 
-          record[column_index] = fake_data.get(type: column["type"],
-                                               value: record[column_index],
-                                               id: record[id_column_index])
+          record[column_index] = cleanup_data.get(type: column["cleanup_data_type"],
+                                                  orig_value: record[column_index],
+                                                  id: record[id_column_index])
         end
 
         record.join("\t")
