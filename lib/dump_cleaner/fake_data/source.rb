@@ -21,7 +21,8 @@ module DumpCleaner
         pipeline.map do |processor_config|
           params = (processor_config["params"] || {}).transform_keys(&:to_sym)
           lambda do |data|
-            Kernel.const_get("DumpCleaner::FakeData::Processors::#{processor_config['step']}").process(data, **params)
+            Kernel.const_get("DumpCleaner::FakeData::SourceSteps::#{processor_config['step']}")
+                  .process(data, **params)
           end
         end
       end
