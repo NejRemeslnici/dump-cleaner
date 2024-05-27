@@ -18,10 +18,10 @@ module DumpCleaner
       end
 
       def steps_processors(steps: [])
-        steps.map do |processor_config|
-          params = (processor_config["params"] || {}).transform_keys(&:to_sym)
+        steps.map do |step_config|
+          params = (step_config["params"] || {}).transform_keys(&:to_sym)
           lambda do |data, type|
-            Kernel.const_get("DumpCleaner::CleanupData::SourceSteps::#{processor_config['step']}")
+            Kernel.const_get("DumpCleaner::CleanupData::SourceSteps::#{step_config['step']}")
                   .process(data, type:, **params)
           end
         end

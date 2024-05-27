@@ -5,24 +5,28 @@ module DumpCleaner
     class Data
       attr_reader :config
       attr_reader :source
+      attr_reader :cleaning
 
       def initialize(config:)
         @config = config
         @source = Source.new
+        @cleaning = Cleaning.new
       end
 
       def get(type:, orig_value:, id: nil)
         source_data = source.data_for(type, steps: config.dig(type, "source") || [])
-        cleaning_steps = config.dig(type, "cleaning") || []
-        cleanup_data_pool = source_data["#{orig_value.length}-#{orig_value.bytes.length}"]
+        cleaning.clean_value_for(orig_value, type:, id:, source_data:, steps: config.dig(type, "cleaning") || []) ||
+          cleaning.clean_value_for(orig_value, type:, id:, source_data:, steps: config.dig(type, "failed_cleaning") || [])
 
-        if cleanup_data_pool
-          chosen_cleanup_data_index = Zlib.crc32(id.to_s) % cleanup_data_pool.size
-          cleanup_data_pool[chosen_cleanup_data_index]
-        else
-          warn "ID #{id}: Cannot find appropriate fake data for '#{orig_value}', using some random string instead."
-          ("anonymized #{type} " * 10).slice(0...orig_value.bytes.length)
-        end
+        # cleanup_data_pool = source_data["#{orig_value.length}-#{orig_value.bytes.length}"]
+
+        # if cleanup_data_pool
+        #   chosen_cleanup_data_index = Zlib.crc32(id.to_s) % cleanup_data_pool.size
+        #   cleanup_data_pool[chosen_cleanup_data_index]
+        # else
+        #   warn "ID #{id}: Cannot find appropriate fake data for '#{orig_value}', using some random string instead."
+        #   ("anonymized #{type} " * 10).slice(0...orig_value.bytes.length)
+        # end
       end
     end
   end
