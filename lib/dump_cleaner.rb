@@ -12,6 +12,7 @@ require_relative "dump_cleaner/cleanup_data/cleaning_steps/select_byte_length_gr
 require_relative "dump_cleaner/cleanup_data/data"
 require_relative "dump_cleaner/cleanup_data/source_phase"
 require_relative "dump_cleaner/cleanup_data/source_steps/group_by_byte_length"
+require_relative "dump_cleaner/cleanup_data/source_steps/inspect"
 require_relative "dump_cleaner/cleanup_data/source_steps/load_yaml_file"
 
 module DumpCleaner
