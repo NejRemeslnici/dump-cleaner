@@ -2,8 +2,9 @@
 
 module DumpCleaner
   module CleanupData
-    class Source
-      def initialize
+    class SourcePhase
+      def initialize(config:)
+        @config = config
         @data = {}
       end
 

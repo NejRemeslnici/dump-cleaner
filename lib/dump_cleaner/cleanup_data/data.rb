@@ -4,19 +4,17 @@ module DumpCleaner
   module CleanupData
     class Data
       attr_reader :config
-      attr_reader :source
-      attr_reader :cleaning
 
       def initialize(config:)
         @config = config
-        @source = Source.new
-        @cleaning = Cleaning.new
+        @source_phase = SourcePhase.new(config:)
+        @cleaning_phase = CleaningPhase.new(config:)
       end
 
-      def get(type:, orig_value:, id: nil)
-        cleanup_data = source.data_for(type, steps: config.dig(type, "source") || [])
-        cleaning.clean_value_for(orig_value, type:, id:, cleanup_data:, steps: config.dig(type, "cleaning") || []) ||
-          cleaning.clean_value_for(orig_value, type:, id:, cleanup_data:, steps: config.dig(type, "failure") || [])
+      def clean(type:, orig_value:, id: nil)
+        cleanup_data = @source_phase.data_for(type, steps: config.dig(type, "source") || [])
+
+        @cleaning_phase.clean_value_for(orig_value, type:, id:, cleanup_data:)
       end
     end
   end

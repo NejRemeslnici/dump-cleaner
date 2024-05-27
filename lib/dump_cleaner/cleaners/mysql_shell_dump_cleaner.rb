@@ -52,17 +52,16 @@ module DumpCleaner
 
       def cleaned_line(line, cleanup:)
         record = line.split("\t")
+        id_column_index = @table_info.dig("options", "columns").index(cleanup["id_column"])
 
         cleanup["columns"].each do |column|
           column_index = @table_info.dig("options", "columns").index(column["name"])
-          id_column_index = @table_info.dig("options", "columns").index(cleanup["id_column"])
-          # p column_index, id_column_index
 
-          next if record[column_index] == "\\N"
+          next if record[column_index] == "\\N" # ignore NULL values
 
-          record[column_index] = cleanup_data.get(type: column["cleanup_data_type"],
-                                                  orig_value: record[column_index],
-                                                  id: record[id_column_index])
+          record[column_index] = cleanup_data.clean(type: column["cleanup_data_type"],
+                                                    orig_value: record[column_index],
+                                                    id: record[id_column_index])
         end
 
         record.join("\t")

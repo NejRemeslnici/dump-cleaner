@@ -2,13 +2,17 @@
 
 module DumpCleaner
   module CleanupData
-    class Cleaning
-      def initialize
+    class CleaningPhase
+      def initialize(config:)
+        @config = config
         @workflow_steps = {}
       end
 
-      def clean_value_for(orig_value, type:, cleanup_data:, id:, steps: [])
-        run_workflow(orig_value:, type:, cleanup_data:, id:, steps:)
+      def clean_value_for(orig_value, type:, cleanup_data:, id:, steps: nil)
+        run_workflow(orig_value:, type:, cleanup_data:, id:,
+                     steps: steps || workflow_steps_for(type, cleaning_phase_part: :cleaning)) ||
+          run_workflow(orig_value:, type:, cleanup_data:, id:,
+                       steps: steps || workflow_steps_for(type, cleaning_phase_part: :failure))
       end
 
       private
@@ -26,6 +30,10 @@ module DumpCleaner
                   .run(data, type:, orig_value:, id:, **params)
           end
         end
+      end
+
+      def workflow_steps_for(type, cleaning_phase_part:)
+        @config.dig(type, cleaning_phase_part.to_s) || []
       end
     end
   end
