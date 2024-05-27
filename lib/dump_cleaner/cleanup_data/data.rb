@@ -12,7 +12,7 @@ module DumpCleaner
       end
 
       def get(type:, orig_value:, id: nil)
-        source_data = source.get(type, pipeline: config.dig(type, "source") || [])
+        source_data = source.data_for(type, steps: config.dig(type, "source") || [])
         cleaning_steps = config.dig(type, "cleaning") || []
         cleanup_data_pool = source_data["#{orig_value.length}-#{orig_value.bytes.length}"]
 
