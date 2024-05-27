@@ -20,14 +20,10 @@ module DumpCleaner
                         raise "Unsupported dump format #{config.dig('dump', 'format')}"
                       end
 
-      begin
-        cleaner = cleaner_class.new(config:, options:)
-        cleaner.pre_cleanup
-        cleaner.clean
-        cleaner.post_cleanup
-      rescue StandardError => e
-        raise "Error while cleaning dump", e
-      end
+      cleaner = cleaner_class.new(config:, options:)
+      cleaner.pre_cleanup
+      cleaner.clean
+      cleaner.post_cleanup
     end
 
     private
