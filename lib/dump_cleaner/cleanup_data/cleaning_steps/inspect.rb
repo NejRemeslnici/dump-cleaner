@@ -2,12 +2,12 @@
 
 module DumpCleaner
   module CleanupData
-    module SourceSteps
+    module CleaningSteps
       class Inspect
         include ::DumpCleaner::CleanupData::Inspection
 
-        def run(data, type:, values: 10)
-          inspect_data_subset(data, message: "Inspecting '#{type}' data", values:)
+        def run(data, type:, orig_value:, id:, values: 10)
+          inspect_data_subset(data, message: "Inspecting '#{type}' data for '#{orig_value}", values:)
           data
         end
       end
