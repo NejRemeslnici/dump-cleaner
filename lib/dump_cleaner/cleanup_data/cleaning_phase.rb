@@ -20,11 +20,11 @@ module DumpCleaner
               DumpCleaner::CleanupData::CleaningSteps::RepetitionSuffix.new(data: cleanup_data, type:, repetition:)
                                                                        .run(orig_value:, record:)
             else
-              run_workflow(orig_value, type:, cleanup_data:, record: {}, repetition:)
+              run_workflow(orig_value, type:, cleanup_data:, record:, repetition:)
             end
           end
         else
-          keep_value ? orig_value : run_workflow(orig_value, type:, cleanup_data:, record: {})
+          keep_value ? orig_value : run_workflow(orig_value, type:, cleanup_data:, record:)
         end
       end
 
