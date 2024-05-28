@@ -4,9 +4,6 @@ module DumpCleaner
   module CleanupData
     module CleaningSteps
       class ApproximateEmail < Base
-        require "random/formatter"
-        require "zlib"
-
         def run(orig_value:, record: {})
           mailbox, domain = orig_value.downcase.split("@")
 
@@ -35,20 +32,16 @@ module DumpCleaner
         end
 
         def czech_word_instead_of(word, record:)
-          czech_word = data["czech_words"]
-                       .then { SelectByteLengthGroup.new(data: _1, type:).run(orig_value: word, record:) }
-                       .then { DeterministicSample.new(data: _1, type:).run(orig_value: word, record:) }
-
-          if repetition.zero?
-            czech_word
-          elsif czech_word.length > repetition.to_s.length
-            "#{czech_word[0..-repetition.to_s.length - 1]}#{repetition}"
+          data["czech_words"]
+            .then { SelectByteLengthGroup.new(data: _1, type:).run(orig_value: word, record:) }
+            .then do
+            DeterministicSample.new(data: _1, type:, repetition:).run(orig_value: word, record:,
+                                                                      repetition_suffix: true)
           end
         end
 
         def random_word_instead_of(word)
-          random = Random.new(Zlib.crc32(word) + repetition)
-          random.alphanumeric(word.bytes.length).downcase
+          SameLengthRandomString.new(data:, type:, repetition:).run(orig_value: word)
         end
       end
     end

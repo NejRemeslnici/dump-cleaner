@@ -3,7 +3,7 @@ require "singleton"
 module DumpCleaner
   module CleanupData
     module Uniqueness
-      def with_uniqueness_ensured(type:, orig_value: nil, record: {}, &block)
+      def with_uniqueness_ensured(type:, orig_value: nil, record: {}, max_retries: 100, &block)
         n = 0
         result = nil
 
@@ -17,8 +17,10 @@ module DumpCleaner
             break
           end
 
-          if n >= 1000
-            warn "Max retry count reached for ID:#{record['id']} type:#{type} orig:#{orig_value} current:#{result}"
+          # puts "ID: #{record['id']} type: #{type} orig: #{orig_value} current: #{result} repetition: #{n}"
+
+          if n >= max_retries
+            warn "Max retry count #{n} reached for ID:#{record['id']} type:#{type} orig:#{orig_value} current:#{result}"
             result = nil
             break
           end
@@ -37,7 +39,7 @@ module DumpCleaner
         end
 
         def known?(type:, value:)
-          @data.dig(type, value) == 1
+          @data.dig(type, value)
         end
 
         def push(type:, value:)

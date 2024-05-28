@@ -11,6 +11,11 @@ module DumpCleaner
       end
 
       def clean_value_for(orig_value, type:, cleanup_data:, record: {})
+        if (conditions = @config.dig(type, "keep_same_if")) &&
+           Conditions.new(conditions).evaluates_to_true?(record, column_value: orig_value)
+          return orig_value
+        end
+
         if uniqueness_wanted?(type:)
           with_uniqueness_ensured(type:, record:, orig_value:) do |repetition|
             # puts "repetition: #{repetition} for #{orig_value} #{record['id']}"

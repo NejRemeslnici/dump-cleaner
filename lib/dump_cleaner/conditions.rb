@@ -4,7 +4,7 @@ module DumpCleaner
       @conditions = condition_config
     end
 
-    def evaluates_to_true?(record)
+    def evaluates_to_true?(record, column_value: nil)
       return false unless @conditions
 
       Array(@conditions).map do |keep_config|
@@ -17,12 +17,14 @@ module DumpCleaner
                                   [nil, "!=", condition_value]
                                 when "non_zero"
                                   [:to_i, "!=", 0]
+                                when "start_with"
+                                  [nil, :start_with?, condition_value]
                                 when "end_with"
                                   [nil, :end_with?, condition_value]
                                 else
                                   raise "Unknown condition #{keep_config['condition']} for column #{column}"
                                 end
-        record[column].send(conversion || :itself).send(op, value)
+        (column ? record[column] : column_value).send(conversion || :itself).send(op, value)
       end.any?
     end
   end
