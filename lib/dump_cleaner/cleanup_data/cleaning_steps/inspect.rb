@@ -3,7 +3,7 @@
 module DumpCleaner
   module CleanupData
     module CleaningSteps
-      class Inspect
+      class Inspect < Base
         include ::DumpCleaner::CleanupData::Inspection
 
         def run(data, type:, orig_value:, id:, values: 10)

@@ -26,14 +26,20 @@ module DumpCleaner
         @workflow_steps[cache_key] ||= steps.map do |step_config|
           params = (step_config["params"] || {}).transform_keys(&:to_sym)
           lambda do |data:, type:, orig_value:, id:|
-            Kernel.const_get("DumpCleaner::CleanupData::CleaningSteps::#{step_config['step']}").new
-                  .run(data, type:, orig_value:, id:, **params)
+            return orig_value if step_config["ignore"] && orig_value.match?(/(#{step_config["ignore"].join("|")})/)
+
+            Kernel.const_get("DumpCleaner::CleanupData::CleaningSteps::#{step_config['step']}")
+                  .run(data, type:, orig_value:, id:, uniqueness_wanted: uniqueness_wanted?(type), **params)
           end
         end
       end
 
       def workflow_steps_for(type, cleaning_phase_part:)
         @config.dig(type, cleaning_phase_part.to_s) || []
+      end
+
+      def uniqueness_wanted?(type)
+        @config.dig(type, "unique") == true
       end
     end
   end

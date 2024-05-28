@@ -53,6 +53,8 @@ module DumpCleaner
       def cleaned_line(line, cleanup:)
         record = line.split("\t")
         id_column_index = @table_info.dig("options", "columns").index(cleanup["id_column"])
+        id = record[id_column_index].to_i
+        puts id if (id % 10_000).zero?
 
         cleanup["columns"].each do |column|
           column_index = @table_info.dig("options", "columns").index(column["name"])
@@ -61,8 +63,11 @@ module DumpCleaner
 
           record[column_index] = cleanup_data.clean(type: column["cleanup_data_type"],
                                                     orig_value: record[column_index],
-                                                    id: record[id_column_index])
+                                                    id:)
+
+          # puts "Record: #{id}" if column["name"] == "e_mail" && record[column_index] == "dubansky@dubansky.cz"
         end
+
 
         record.join("\t")
       end

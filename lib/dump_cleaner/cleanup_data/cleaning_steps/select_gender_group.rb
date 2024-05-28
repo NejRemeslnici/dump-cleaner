@@ -3,7 +3,7 @@
 module DumpCleaner
   module CleanupData
     module CleaningSteps
-      class SelectGenderGroup
+      class SelectGenderGroup < Base
         FEMALE_REGEXPS = {
           "first_name" => /[ae]$/i,
           "last_name" => /(ová|ova|ská)$/i

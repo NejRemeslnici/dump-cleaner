@@ -3,8 +3,8 @@
 module DumpCleaner
   module CleanupData
     module CleaningSteps
-      class SelectByteLengthGroup
-        def run(data, type:, orig_value:, id:)
+      class SelectByteLengthGroup < Base
+        def run(data, orig_value:, type: nil, id: nil)
           data["#{orig_value.length}-#{orig_value.bytes.length}"]
         end
       end

@@ -3,8 +3,8 @@
 module DumpCleaner
   module CleanupData
     module CleaningSteps
-      class DeterministicSample
-        def run(data, type:, orig_value:, id:)
+      class DeterministicSample < Base
+        def run(data, id:, type: nil, orig_value: nil)
           return unless data
 
           data[Zlib.crc32(id.to_s) % data.size]

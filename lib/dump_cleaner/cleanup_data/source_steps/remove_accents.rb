@@ -3,18 +3,18 @@
 module DumpCleaner
   module CleanupData
     module SourceSteps
-      class GroupByByteLength
+      class RemoveAccents
         def run(data, type:, under_keys: [])
-          group_by_lambda = -> { "#{_1.length}-#{_1.bytes.length}" }
+          block = -> { _1.unicode_normalize(:nfd).gsub(/\p{M}/, "") }
 
           if under_keys.any?
             new_data = {}
             data.each_key do |key|
-              new_data[key] = under_keys.include?(key) ? data[key].group_by(&group_by_lambda) : data[key]
+              new_data[key] = under_keys.include?(key) ? data[key].map(&block) : data[key]
             end
             new_data
           else
-            data.group_by(&group_by_lambda)
+            data.map(&block)
           end
         end
       end
