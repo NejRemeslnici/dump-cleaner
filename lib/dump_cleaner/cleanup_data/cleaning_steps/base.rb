@@ -4,7 +4,7 @@ module DumpCleaner
   module CleanupData
     module CleaningSteps
       class Base
-        include ::DumpCleaner::CleanupData::CleaningSteps::Uniqueness
+        include Uniqueness
 
         def self.run(data, type:, orig_value:, id:, uniqueness_wanted: false, **params)
           if uniqueness_wanted

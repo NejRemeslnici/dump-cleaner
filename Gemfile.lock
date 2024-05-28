@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     dump_cleaner (0.1.0)
+      zeitwerk
 
 GEM
   remote: https://rubygems.org/
@@ -49,6 +50,7 @@ GEM
     ruby-progressbar (1.13.0)
     strscan (3.1.0)
     unicode-display_width (2.5.0)
+    zeitwerk (2.6.15)
 
 PLATFORMS
   ruby
