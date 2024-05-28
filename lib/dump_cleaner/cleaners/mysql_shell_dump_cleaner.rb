@@ -15,7 +15,7 @@ module DumpCleaner
       def clean
         config["cleanups"].each do |cleanup|
           @table_info = table_info(db: cleanup["db"], table: cleanup["table"])
-          table_file_part = "#{cleanup["db"]}@#{cleanup["table"]}"
+          table_file_part = "#{cleanup['db']}@#{cleanup['table']}"
 
           Dir.glob("#{options[:source_dump_path]}/#{table_file_part}@@*.tsv.zst").each do |file|
             p file
@@ -53,7 +53,9 @@ module DumpCleaner
       def cleaned_line(line, cleanup:)
         record = line.split("\t")
         record_context = record_context(record)
-        print "\r#{record_context["id"]}... " if (record_context["id"].to_i % 10_000).zero?
+        print "\r#{record_context['id']}… " if (record_context["id"].to_i % 10_000).zero?
+
+        return line if ignore_record?(record_context, cleanup:)
 
         cleanup["columns"].each do |column|
           column_index = @table_info.dig("options", "columns").index(column["name"])
@@ -65,15 +67,36 @@ module DumpCleaner
                                                     record: record_context)
         end
 
-
         record.join("\t")
       end
 
       def record_context(record)
-        @table_info.dig("options", "columns").each_with_index.reduce({}) do |context, (column, i)|
+        @table_info.dig("options", "columns").each_with_index.each_with_object({}) do |(column, i), context|
           context[column] = record[i]
-          context
         end
+      end
+
+      def ignore_record?(record, cleanup:)
+        return false unless cleanup["ignore_if"]
+
+        Array(cleanup["ignore_if"]).map do |ignore_if|
+          column = ignore_if["column"]
+          condition_value = ignore_if["value"]
+
+          conversion, op, value = case ignore_if["condition"]
+                                  when "eq"
+                                    [nil, "==", condition_value]
+                                  when "ne"
+                                    [nil, "!=", condition_value]
+                                  when "non_zero"
+                                    [:to_i, "!=", 0]
+                                  when "end_with"
+                                    [nil, :end_with?, condition_value]
+                                  else
+                                    raise "Unknown condition #{ignore_if['condition']} for column #{column}"
+                                  end
+          record[column].send(conversion || :itself).send(op, value)
+        end.any?
       end
     end
   end

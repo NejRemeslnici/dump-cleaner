@@ -19,16 +19,14 @@ module DumpCleaner
 
       def run_workflow(orig_value:, type:, cleanup_data:, record: {}, steps: [])
         workflow_steps(type:, steps:).reduce(cleanup_data) do |data, step|
-          step.call(data:, type:, orig_value:, record:)
+          step.call(data:, orig_value:, record:)
         end
       end
 
       def workflow_steps(type:, steps: [])
         cache_key = "#{type}-#{steps.map { _1['step'] }.join('_')}"
         @workflow_steps[cache_key] ||= steps.map do |step_config|
-          lambda do |data:, type:, orig_value:, record:|
-            return orig_value if step_config["ignore"] && orig_value.match?(/(#{step_config['ignore'].join('|')})/)
-
+          lambda do |data:, orig_value:, record:|
             DumpCleaner::CleanupData::CleaningSteps.const_get(step_config["step"])
                                                    .new(data:, type:, step_config:)
                                                    .clean_value_for(orig_value:, record:)

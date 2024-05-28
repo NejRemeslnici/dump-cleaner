@@ -11,7 +11,7 @@ module DumpCleaner
           mailbox, domain = orig_value.downcase.split("@")
 
           if !mailbox || !domain || mailbox.empty? || domain.empty? || !domain.include?(".")
-            warn "invalid email #{orig_value}"
+            warn "ID: #{record['id']} invalid email #{orig_value}"
             return nil
           end
 
