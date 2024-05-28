@@ -52,7 +52,7 @@ module DumpCleaner
 
       def cleaned_line(line, cleanup:)
         record = line.split("\t")
-        record_context = record_context(record)
+        record_context = record_context(record, cleanup:)
         print "\r#{record_context['id']}… " if (record_context["id"].to_i % 10_000).zero?
 
         keep_record = keep_record?(record_context, cleanup:)
@@ -71,8 +71,10 @@ module DumpCleaner
         record.join("\t")
       end
 
-      def record_context(record)
-        @table_info.dig("options", "columns").each_with_index.each_with_object({}) do |(column, i), context|
+      def record_context(record, cleanup:)
+        columns = @table_info.dig("options", "columns")
+        columns &= cleanup["record_context_columns"] if cleanup["record_context_columns"]
+        columns.each_with_index.each_with_object({}) do |(column, i), context|
           context[column] = record[i]
         end
       end
