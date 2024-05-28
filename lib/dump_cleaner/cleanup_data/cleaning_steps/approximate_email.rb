@@ -7,7 +7,7 @@ module DumpCleaner
         require "random/formatter"
         require "zlib"
 
-        def run(data, type:, orig_value:, id:, repetition: 0)
+        def run(orig_value:, id:)
           mailbox, domain = orig_value.downcase.split("@")
 
           if !mailbox || !domain || mailbox.empty? || domain.empty? || !domain.include?(".")
@@ -36,8 +36,8 @@ module DumpCleaner
 
         def czech_word_instead_of(word, data:, repetition: 0)
           czech_word = data["czech_words"]
-                       .then { SelectByteLengthGroup.new.run(_1, orig_value: word) }
-                       .then { DeterministicSample.new.run(_1, id: word) }
+                       .then { SelectByteLengthGroup.new(data: _1, type:, step_config: []).run(orig_value: word, id: nil) }
+                       .then { DeterministicSample.new(data: _1, type:, step_config: []).run(orig_value: nil, id: word) }
 
           if repetition.zero?
             czech_word

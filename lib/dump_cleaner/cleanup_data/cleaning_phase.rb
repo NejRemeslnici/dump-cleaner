@@ -8,11 +8,11 @@ module DumpCleaner
         @workflow_steps = {}
       end
 
-      def clean_value_for(orig_value, type:, cleanup_data:, id:, steps: nil)
+      def clean_value_for(orig_value, type:, cleanup_data:, id:)
         run_workflow(orig_value:, type:, cleanup_data:, id:,
-                     steps: steps || workflow_steps_for(type, cleaning_phase_part: :cleaning)) ||
+                     steps: workflow_steps_for(type, phase_part: :cleaning)) ||
           run_workflow(orig_value:, type:, cleanup_data:, id:,
-                       steps: steps || workflow_steps_for(type, cleaning_phase_part: :failure))
+                       steps: workflow_steps_for(type, phase_part: :failure))
       end
 
       private
@@ -24,22 +24,23 @@ module DumpCleaner
       def workflow_steps(type:, steps: [])
         cache_key = "#{type}-#{steps.map { _1['step'] }.join('_')}"
         @workflow_steps[cache_key] ||= steps.map do |step_config|
-          params = (step_config["params"] || {}).transform_keys(&:to_sym)
           lambda do |data:, type:, orig_value:, id:|
-            return orig_value if step_config["ignore"] && orig_value.match?(/(#{step_config["ignore"].join("|")})/)
+            return orig_value if step_config["ignore"] && orig_value.match?(/(#{step_config['ignore'].join('|')})/)
 
-            Kernel.const_get("DumpCleaner::CleanupData::CleaningSteps::#{step_config['step']}")
-                  .run(data, type:, orig_value:, id:, uniqueness_wanted: uniqueness_wanted?(type), **params)
+            DumpCleaner::CleanupData::CleaningSteps.const_get(step_config["step"])
+                                                   .new(data:, type:, step_config:)
+                                                   .clean_value_for(orig_value:, id:)
           end
         end
       end
 
-      def workflow_steps_for(type, cleaning_phase_part:)
-        @config.dig(type, cleaning_phase_part.to_s) || []
-      end
+      def workflow_steps_for(type, phase_part:)
+        uniqueness_wanted = @config.dig(type, "unique")
 
-      def uniqueness_wanted?(type)
-        @config.dig(type, "unique") == true
+        Array(@config.dig(type, phase_part.to_s)).each do |step_config|
+          # copy some settings from higher level config
+          step_config["unique"] = true if uniqueness_wanted
+        end
       end
     end
   end

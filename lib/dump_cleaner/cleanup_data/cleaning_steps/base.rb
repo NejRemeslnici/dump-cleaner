@@ -6,14 +6,33 @@ module DumpCleaner
       class Base
         include Uniqueness
 
-        def self.run(data, type:, orig_value:, id:, uniqueness_wanted: false, **params)
-          if uniqueness_wanted
-            new.with_uniqueness_ensured(type:, id:, orig_value:) do |repetition|
-              run(data, type:, orig_value:, id:, repetition:, **params)
+        attr_reader :data, :type, :step_config
+        attr_accessor :repetition
+
+        def initialize(data:, type:, step_config: {})
+          @data = data
+          @type = type
+          @step_config = step_config
+          @repetition = 0
+        end
+
+        def clean_value_for(orig_value:, id:)
+          params = (@step_config["params"] || {}).transform_keys(&:to_sym)
+
+          if uniqueness_wanted?
+            with_uniqueness_ensured(type:, id:, orig_value:) do |repetition|
+              self.repetition = repetition
+              run(orig_value:, id:, **params)
             end
           else
-            new.run(data, type:, orig_value:, id:, **params)
+            run(orig_value:, id:, **params)
           end
+        end
+
+        private
+
+        def uniqueness_wanted?
+          @step_config["unique"].to_s == "true"
         end
       end
     end
