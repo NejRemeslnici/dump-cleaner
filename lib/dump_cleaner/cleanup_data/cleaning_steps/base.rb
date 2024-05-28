@@ -4,35 +4,18 @@ module DumpCleaner
   module CleanupData
     module CleaningSteps
       class Base
-        include Uniqueness
+        attr_reader :data, :type, :step_config, :repetition
 
-        attr_reader :data, :type, :step_config
-        attr_accessor :repetition
-
-        def initialize(data:, type:, step_config: {})
+        def initialize(data:, type:, step_config: {}, repetition: 0)
           @data = data
           @type = type
           @step_config = step_config
-          @repetition = 0
+          @repetition = repetition
         end
 
         def clean_value_for(orig_value:, record: {})
           params = (@step_config["params"] || {}).transform_keys(&:to_sym)
-
-          if uniqueness_wanted?
-            with_uniqueness_ensured(type:, record:, orig_value:) do |repetition|
-              self.repetition = repetition
-              run(orig_value:, record:, **params)
-            end
-          else
-            run(orig_value:, record:, **params)
-          end
-        end
-
-        private
-
-        def uniqueness_wanted?
-          @step_config["unique"].to_s == "true"
+          run(orig_value:, record:, **params)
         end
       end
     end

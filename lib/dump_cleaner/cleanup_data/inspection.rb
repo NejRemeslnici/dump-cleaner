@@ -18,7 +18,7 @@ module DumpCleaner
           subset_data.each_with_index { |element, index| subset_data[index] = subset(element, values:) }
         when Hash
           subset_data = data.take(values).to_h
-          subset_data[""] = "+ #{data.size - values} more..." if data.size > values
+          subset_data["+ #{data.size - values} more..."] = [] if data.size > values
           subset_data.each_key { |key| subset_data[key] = subset(subset_data[key], values:) }
         else
           subset_data = data
