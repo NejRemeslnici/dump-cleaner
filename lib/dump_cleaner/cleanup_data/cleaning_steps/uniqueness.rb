@@ -4,7 +4,7 @@ module DumpCleaner
   module CleanupData
     module CleaningSteps
       module Uniqueness
-        def with_uniqueness_ensured(type:, id:, orig_value:, &block)
+        def with_uniqueness_ensured(type:, orig_value: nil, record: {}, &block)
           n = 0
           result = nil
 
@@ -19,7 +19,7 @@ module DumpCleaner
             end
 
             if n >= 1000
-              warn "Max retry count reached for #{type} #{id} #{orig_value}"
+              warn "Max retry count reached for type:#{type} ID:#{record['id']} orig_value:#{orig_value}"
               result = nil
               break
             end

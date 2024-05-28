@@ -8,28 +8,30 @@ module DumpCleaner
         @workflow_steps = {}
       end
 
-      def clean_value_for(orig_value, type:, cleanup_data:, id:)
-        run_workflow(orig_value:, type:, cleanup_data:, id:,
+      def clean_value_for(orig_value, type:, cleanup_data:, record: {})
+        run_workflow(orig_value:, type:, cleanup_data:, record:,
                      steps: workflow_steps_for(type, phase_part: :cleaning)) ||
-          run_workflow(orig_value:, type:, cleanup_data:, id:,
+          run_workflow(orig_value:, type:, cleanup_data:, record:,
                        steps: workflow_steps_for(type, phase_part: :failure))
       end
 
       private
 
-      def run_workflow(orig_value:, type:, cleanup_data:, id:, steps: [])
-        workflow_steps(type:, steps:).reduce(cleanup_data) { |data, step| step.call(data:, type:, orig_value:, id:) }
+      def run_workflow(orig_value:, type:, cleanup_data:, record: {}, steps: [])
+        workflow_steps(type:, steps:).reduce(cleanup_data) do |data, step|
+          step.call(data:, type:, orig_value:, record:)
+        end
       end
 
       def workflow_steps(type:, steps: [])
         cache_key = "#{type}-#{steps.map { _1['step'] }.join('_')}"
         @workflow_steps[cache_key] ||= steps.map do |step_config|
-          lambda do |data:, type:, orig_value:, id:|
+          lambda do |data:, type:, orig_value:, record:|
             return orig_value if step_config["ignore"] && orig_value.match?(/(#{step_config['ignore'].join('|')})/)
 
             DumpCleaner::CleanupData::CleaningSteps.const_get(step_config["step"])
                                                    .new(data:, type:, step_config:)
-                                                   .clean_value_for(orig_value:, id:)
+                                                   .clean_value_for(orig_value:, record:)
           end
         end
       end

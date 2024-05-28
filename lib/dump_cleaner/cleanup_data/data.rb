@@ -11,10 +11,10 @@ module DumpCleaner
         @cleaning_phase = CleaningPhase.new(config:)
       end
 
-      def clean(type:, orig_value:, id: nil)
+      def clean(type:, orig_value:, record: {})
         cleanup_data = @source_phase.data_for(type, steps: config.dig(type, "source") || [])
 
-        @cleaning_phase.clean_value_for(orig_value, type:, id:, cleanup_data:)
+        @cleaning_phase.clean_value_for(orig_value, type:, record:, cleanup_data:)
       end
     end
   end

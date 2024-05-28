@@ -16,16 +16,16 @@ module DumpCleaner
           @repetition = 0
         end
 
-        def clean_value_for(orig_value:, id:)
+        def clean_value_for(orig_value:, record: {})
           params = (@step_config["params"] || {}).transform_keys(&:to_sym)
 
           if uniqueness_wanted?
-            with_uniqueness_ensured(type:, id:, orig_value:) do |repetition|
+            with_uniqueness_ensured(type:, record:, orig_value:) do |repetition|
               self.repetition = repetition
-              run(orig_value:, id:, **params)
+              run(orig_value:, record:, **params)
             end
           else
-            run(orig_value:, id:, **params)
+            run(orig_value:, record:, **params)
           end
         end
 

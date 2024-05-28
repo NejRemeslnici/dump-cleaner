@@ -4,10 +4,10 @@ module DumpCleaner
   module CleanupData
     module CleaningSteps
       class DeterministicSample < Base
-        def run(id:, orig_value:)
+        def run(orig_value:, record: {})
           return unless data
 
-          data[Zlib.crc32("#{id}-#{orig_value}") % data.size]
+          data[Zlib.crc32("#{record['id']}-#{orig_value}") % data.size]
         end
       end
     end

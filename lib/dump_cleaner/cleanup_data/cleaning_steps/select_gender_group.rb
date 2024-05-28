@@ -9,7 +9,7 @@ module DumpCleaner
           "last_name" => /(ová|ova|ská)$/i
         }.freeze
 
-        def run(orig_value:, id:)
+        def run(orig_value:, record: {})
           data[guess_gender(type:, orig_value:)]
         end
 
