@@ -39,12 +39,14 @@ module DumpCleaner
         end
 
         def known?(type:, value:)
-          @data.dig(type, value.downcase)
+          return false unless @data.key?(type)
+
+          @data[type].include?(value.downcase)
         end
 
         def push(type:, value:)
-          @data[type] ||= {}
-          @data[type][value.downcase] = 1
+          @data[type] ||= Set.new
+          @data[type].add(value.downcase)
         end
       end
     end
