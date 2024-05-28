@@ -55,7 +55,7 @@ module DumpCleaner
         record_context = record_context(record)
         print "\r#{record_context['id']}… " if (record_context["id"].to_i % 10_000).zero?
 
-        return line if keep_record?(record_context, cleanup:)
+        keep_record = keep_record?(record_context, cleanup:)
 
         cleanup["columns"].each do |column|
           column_index = @table_info.dig("options", "columns").index(column["name"])
@@ -64,7 +64,8 @@ module DumpCleaner
 
           record[column_index] = cleanup_data.clean(type: column["cleanup_data_type"],
                                                     orig_value: record[column_index],
-                                                    record: record_context)
+                                                    record: record_context,
+                                                    keep_record:)
         end
 
         record.join("\t")

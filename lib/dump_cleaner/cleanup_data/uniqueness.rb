@@ -3,7 +3,7 @@ require "singleton"
 module DumpCleaner
   module CleanupData
     module Uniqueness
-      def with_uniqueness_ensured(type:, orig_value: nil, record: {}, max_retries: 100, &block)
+      def repeat_until_unique(type:, orig_value: nil, record: {}, max_retries: 100, &block)
         n = 0
         result = nil
 
@@ -39,12 +39,12 @@ module DumpCleaner
         end
 
         def known?(type:, value:)
-          @data.dig(type, value)
+          @data.dig(type, value.downcase)
         end
 
         def push(type:, value:)
           @data[type] ||= {}
-          @data[type][value] = 1
+          @data[type][value.downcase] = 1
         end
       end
     end

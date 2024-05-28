@@ -5,10 +5,10 @@ module DumpCleaner
     module CleaningSteps
       class ApproximateEmail < Base
         def run(orig_value:, record: {})
-          mailbox, domain = orig_value.downcase.split("@")
+          mailbox, domain = orig_value.split("@")
 
           if !mailbox || !domain || mailbox.empty? || domain.empty? || !domain.include?(".")
-            warn "ID: #{record['id']} invalid email #{orig_value}"
+            warn "ID: #{record['id']} invalid email #{orig_value}" if repetition.zero?
             return nil
           end
 
@@ -19,8 +19,6 @@ module DumpCleaner
           else
             tld2, _dot, tld = domain.rpartition(".")
             new_tld2 = czech_or_random_word_instead_of(tld2, record:)
-
-            # puts "#{new_mailbox}@#{new_tld2}.#{tld}"
             "#{new_mailbox}@#{new_tld2}.#{tld}"
           end
         end
@@ -36,12 +34,12 @@ module DumpCleaner
             .then { SelectByteLengthGroup.new(data: _1, type:).run(orig_value: word, record:) }
             .then do
             DeterministicSample.new(data: _1, type:, repetition:).run(orig_value: word, record:,
-                                                                      repetition_suffix: true)
+                                                                      uniqueness_strategy: :suffix)
           end
         end
 
         def random_word_instead_of(word)
-          SameLengthRandomString.new(data:, type:, repetition:).run(orig_value: word)
+          SameLengthRandomString.new_from(self).run(orig_value: word)
         end
       end
     end

@@ -10,19 +10,21 @@ module DumpCleaner
         @workflow_steps = {}
       end
 
-      def clean_value_for(orig_value, type:, cleanup_data:, record: {})
-        if (conditions = @config.dig(type, "keep_same_if")) &&
-           Conditions.new(conditions).evaluates_to_true?(record, column_value: orig_value)
-          return orig_value
-        end
+      def clean_value_for(orig_value, type:, cleanup_data:, record: {}, keep_record: false)
+        keep_value = keep_record || ((conditions = @config.dig(type, "keep_same_if")) &&
+                      Conditions.new(conditions).evaluates_to_true?(record, column_value: orig_value))
 
         if uniqueness_wanted?(type:)
-          with_uniqueness_ensured(type:, record:, orig_value:) do |repetition|
-            # puts "repetition: #{repetition} for #{orig_value} #{record['id']}"
-            run_workflow(orig_value, type:, cleanup_data:, record: {}, repetition:)
+          repeat_until_unique(type:, record:, orig_value:) do |repetition|
+            if keep_value
+              DumpCleaner::CleanupData::CleaningSteps::RepetitionSuffix.new(data: cleanup_data, type:, repetition:)
+                                                                       .run(orig_value:, record:)
+            else
+              run_workflow(orig_value, type:, cleanup_data:, record: {}, repetition:)
+            end
           end
         else
-          run_workflow(orig_value, type:, cleanup_data:, record: {})
+          keep_value ? orig_value : run_workflow(orig_value, type:, cleanup_data:, record: {})
         end
       end
 

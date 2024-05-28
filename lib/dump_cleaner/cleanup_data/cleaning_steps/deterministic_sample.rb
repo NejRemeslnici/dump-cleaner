@@ -4,19 +4,17 @@ module DumpCleaner
   module CleanupData
     module CleaningSteps
       class DeterministicSample < Base
-        def run(orig_value:, record: {}, repetition_suffix: false)
+        def run(orig_value:, record: {}, uniqueness_strategy: :resample)
           return unless data
 
-          if repetition_suffix
+          uniqueness_strategy = uniqueness_strategy.to_sym
+          if uniqueness_strategy == :suffix
             sample = data[Zlib.crc32("#{record['id']}-#{orig_value}") % data.size]
-
-            if repetition.zero?
-              sample
-            elsif sample.length > repetition.to_s.length
-              "#{sample[0..-repetition.to_s.length - 1]}#{repetition}"
-            end
-          else
+            RepetitionSuffix.new_from(self).run(orig_value: sample, record:)
+          elsif uniqueness_strategy == :resample
             data[Zlib.crc32("#{record['id']}-#{orig_value}-#{repetition}") % data.size]
+          else
+            raise ArgumentError, "Unknown uniqueness strategy: #{uniqueness_strategy}"
           end
         end
       end
