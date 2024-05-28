@@ -55,7 +55,7 @@ module DumpCleaner
         record_context = record_context(record)
         print "\r#{record_context['id']}… " if (record_context["id"].to_i % 10_000).zero?
 
-        return line if ignore_record?(record_context, cleanup:)
+        return line if keep_record?(record_context, cleanup:)
 
         cleanup["columns"].each do |column|
           column_index = @table_info.dig("options", "columns").index(column["name"])
@@ -76,14 +76,13 @@ module DumpCleaner
         end
       end
 
-      def ignore_record?(record, cleanup:)
-        return false unless cleanup["ignore_if"]
+      def keep_record?(record, cleanup:)
+        return false unless cleanup["keep_same_if"]
 
-        Array(cleanup["ignore_if"]).map do |ignore_if|
-          column = ignore_if["column"]
-          condition_value = ignore_if["value"]
-
-          conversion, op, value = case ignore_if["condition"]
+        Array(cleanup["keep_same_if"]).map do |keep_config|
+          column = keep_config["column"]
+          condition_value = keep_config["value"]
+          conversion, op, value = case keep_config["condition"]
                                   when "eq"
                                     [nil, "==", condition_value]
                                   when "ne"
@@ -93,7 +92,7 @@ module DumpCleaner
                                   when "end_with"
                                     [nil, :end_with?, condition_value]
                                   else
-                                    raise "Unknown condition #{ignore_if['condition']} for column #{column}"
+                                    raise "Unknown condition #{keep_config['condition']} for column #{column}"
                                   end
           record[column].send(conversion || :itself).send(op, value)
         end.any?
