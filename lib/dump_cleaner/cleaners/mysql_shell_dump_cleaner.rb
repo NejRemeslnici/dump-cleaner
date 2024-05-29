@@ -79,10 +79,9 @@ module DumpCleaner
 
       def record_context(record, cleanup:)
         columns = @table_info.dig("options", "columns")
+        indexes = columns.each_with_index.to_h
         columns &= cleanup["record_context_columns"] if cleanup["record_context_columns"]
-        columns.each_with_index.each_with_object({}) do |(column, i), context|
-          context[column] = record[i]
-        end
+        columns.each_with_object({}) { |column, context| context[column] = record[indexes[column]] }
       end
 
       def keep_record?(record, cleanup:)
