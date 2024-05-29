@@ -35,6 +35,10 @@ module DumpCleaner
         include Singleton
 
         def initialize
+          clear
+        end
+
+        def clear
           @data = {}
         end
 
