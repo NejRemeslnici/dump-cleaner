@@ -12,6 +12,8 @@ module DumpCleaner
       end
 
       def clean(type:, orig_value:, record: {}, keep_record: false)
+        raise "Missing config for type '#{type}' in the 'cleanup_data' section." unless @config[type]
+
         cleanup_data = @source_phase.data_for(type, steps: config.dig(type, "source") || [])
 
         @cleaning_phase.clean_value_for(orig_value, type:, cleanup_data:, record:, keep_record:)

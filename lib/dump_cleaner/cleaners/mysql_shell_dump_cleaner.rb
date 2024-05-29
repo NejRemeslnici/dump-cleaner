@@ -76,8 +76,9 @@ module DumpCleaner
         new_line = record.join("\t")
         if new_line.bytes.length != line.bytes.length
           warn "ID: #{record_context['id']} bytes length changed: #{line.bytes.length} => #{new_line.bytes.length}"
-          warn "orig: #{line}"
-          warn " new: #{new_line}\n"
+          line.split("\t").each_with_index do |column, i|
+            warn "#{column} -> #{record[i]}" if !record[i] || column.bytes.length != record[i].bytes.length
+          end
         end
         new_line
       end
