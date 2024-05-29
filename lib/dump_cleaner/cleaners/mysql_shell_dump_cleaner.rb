@@ -68,7 +68,13 @@ module DumpCleaner
                                                     keep_record:)
         end
 
-        record.join("\t")
+        new_line = record.join("\t")
+        if new_line.bytes.length != line.bytes.length
+          warn "ID: #{record_context['id']} bytes length changed: #{line.bytes.length} => #{new_line.bytes.length}"
+          warn "orig: #{line}"
+          warn " new: #{new_line}\n"
+        end
+        new_line
       end
 
       def record_context(record, cleanup:)
