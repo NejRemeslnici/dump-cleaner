@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require "yaml"
-require "json"
-
 module DumpCleaner
   class Processor
     attr_reader :options
@@ -12,11 +9,11 @@ module DumpCleaner
     end
 
     def run
-      cleaner_class = case config.dig("dump", "format")
+      cleaner_class = case config.dump_format
                       when "mysql_shell_zst"
                         Cleaners::MysqlShellDumpCleaner
                       else
-                        raise "Unsupported dump format #{config.dig('dump', 'format')}"
+                        raise "Unsupported dump format #{config.dump_format}"
                       end
 
       cleaner = cleaner_class.new(config:, options:)
@@ -28,15 +25,7 @@ module DumpCleaner
     private
 
     def config
-      @config ||= load_config_file(options[:config_file])
-    end
-
-    def load_config_file(config_file)
-      YAML.load_file(config_file)
-    end
-
-    def source_dump_path
-      config["source_dump_path"]
+      @config ||= Config.new(options[:config_file])
     end
   end
 end

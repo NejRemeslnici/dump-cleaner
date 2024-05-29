@@ -4,7 +4,7 @@ module DumpCleaner
       @conditions = condition_config
     end
 
-    def evaluates_to_true?(record, column_value: nil)
+    def evaluate_to_true?(record, column_value: nil)
       return false unless @conditions
 
       Array(@conditions).map do |keep_config|

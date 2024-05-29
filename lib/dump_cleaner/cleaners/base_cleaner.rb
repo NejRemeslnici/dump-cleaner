@@ -8,7 +8,7 @@ module DumpCleaner
       def initialize(config:, options:)
         @config = config
         @options = options
-        @cleanup_data = CleanupData::Data.new(config: config["cleanup_data"])
+        @cleanup_data = CleanupData::Data.new(config:)
       end
 
       def pre_cleanup

@@ -11,5 +11,8 @@ Metrics/MethodLength:
   CountComments: false
   Max: 30
 
+Style/Documentation:
+  Enabled: false
+
 Style/StringLiterals:
   EnforcedStyle: double_quotes

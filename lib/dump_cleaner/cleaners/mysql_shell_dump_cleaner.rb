@@ -13,13 +13,13 @@ module DumpCleaner
       end
 
       def clean
-        config["cleanups"].each do |cleanup|
-          puts "Cleaning table #{cleanup['db']}.#{cleanup['table']}…"
+        config.cleanups.each do |cleanup|
+          puts "Cleaning table #{cleanup.db}.#{cleanup.table}…"
 
           DumpCleaner::CleanupData::Uniqueness::Ensurer.instance.clear
 
-          @table_info = table_info(db: cleanup["db"], table: cleanup["table"])
-          table_file_part = "#{cleanup['db']}@#{cleanup['table']}"
+          @table_info = table_info(db: cleanup.db, table: cleanup.table)
+          table_file_part = "#{cleanup.db}@#{cleanup.table}"
 
           Dir.glob("#{options[:source_dump_path]}/#{table_file_part}@@*.tsv.zst").each do |file|
             Open3.pipeline_r(["zstd", "-dc", file], ["head", "-n", "10000000"]) do |tsv_data, wait_thread|
@@ -61,13 +61,13 @@ module DumpCleaner
 
         keep_record = keep_record?(record_context, cleanup:)
 
-        cleanup["columns"].each do |column|
-          column_index = @table_info.dig("options", "columns").index(column["name"])
-          raise "Invalid column specified in config: #{column['name']}" unless column_index
+        cleanup.columns.each do |column|
+          column_index = @table_info.dig("options", "columns").index(column.name)
+          raise "Invalid column specified in config: #{column.name}" unless column_index
 
           next if record[column_index] == "\\N" # ignore NULL values
 
-          record[column_index] = cleanup_data.clean(type: column["cleanup_data_type"],
+          record[column_index] = cleanup_data.clean(type: column.cleanup_type,
                                                     orig_value: record[column_index],
                                                     record: record_context,
                                                     keep_record:)
@@ -86,14 +86,14 @@ module DumpCleaner
       def record_context(record, cleanup:)
         columns = @table_info.dig("options", "columns")
         indexes = columns.each_with_index.to_h
-        columns &= cleanup["record_context_columns"] if cleanup["record_context_columns"]
+        columns &= cleanup.record_context_columns
         columns.each_with_object({}) { |column, context| context[column] = record[indexes[column]] }
       end
 
       def keep_record?(record, cleanup:)
-        return false unless cleanup["keep_same_if"]
+        return false unless cleanup.keep_same_conditions
 
-        Conditions.new(cleanup["keep_same_if"]).evaluates_to_true?(record)
+        Conditions.new(cleanup.keep_same_conditions).evaluate_to_true?(record)
       end
     end
   end

@@ -5,17 +5,19 @@ module DumpCleaner
     class CleaningPhase
       include Uniqueness
 
+      attr_reader :config
+
       def initialize(config:)
         @config = config
         @workflow_steps_cache = {}
       end
 
       def clean_value_for(orig_value, type:, cleanup_data:, record: {}, keep_record: false)
-        keep_value = (keep_record && !@config.dig(type, "ignore_record_keep_same_rules")) ||
-                     ((conditions = @config.dig(type, "keep_same_if")) &&
-                      Conditions.new(conditions).evaluates_to_true?(record, column_value: orig_value))
+        keep_value = (keep_record && !config.ignore_record_keep_same_conditions?(type)) ||
+                     ((conditions = config.keep_same_conditions(type)) &&
+                      Conditions.new(conditions).evaluate_to_true?(record, column_value: orig_value))
 
-        if uniqueness_wanted?(type:)
+        if config.uniqueness_wanted?(type)
           repeat_until_unique(type:, record:, orig_value:) do |repetition|
             if keep_value
               DumpCleaner::CleanupData::CleaningSteps::RepetitionSuffix.new(data: cleanup_data, type:, repetition:)
@@ -32,10 +34,8 @@ module DumpCleaner
       private
 
       def run_workflow(orig_value, type:, cleanup_data:, record: {}, repetition: 0)
-        run_steps(orig_value:, type:, cleanup_data:, record:, repetition:,
-                  steps: workflow_steps_for(type:, phase_part: :cleaning)) ||
-          run_steps(orig_value:, type:, cleanup_data:, record:, repetition:,
-                    steps: workflow_steps_for(type:, phase_part: :failure))
+        run_steps(orig_value:, type:, cleanup_data:, record:, repetition:, steps: config.steps_for(type, :cleaning)) ||
+          run_steps(orig_value:, type:, cleanup_data:, record:, repetition:, steps: config.steps_for(type, :failure))
       end
 
       def run_steps(orig_value:, type:, cleanup_data:, record: {}, steps: [], repetition: 0)
@@ -53,14 +53,6 @@ module DumpCleaner
                                                    .clean_value_for(orig_value:, record:)
           end
         end
-      end
-
-      def workflow_steps_for(type:, phase_part:)
-        Array(@config.dig(type, phase_part.to_s))
-      end
-
-      def uniqueness_wanted?(type:)
-        @config.dig(type, "unique")
       end
     end
   end
