@@ -16,6 +16,8 @@ module DumpCleaner
         config["cleanups"].each do |cleanup|
           puts "Cleaning table #{cleanup['db']}.#{cleanup['table']}…"
 
+          DumpCleaner::CleanupData::Uniqueness::Ensurer.instance.clear
+
           @table_info = table_info(db: cleanup["db"], table: cleanup["table"])
           table_file_part = "#{cleanup['db']}@#{cleanup['table']}"
 

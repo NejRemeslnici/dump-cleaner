@@ -9,7 +9,6 @@ module DumpCleaner
         @config = config
         @options = options
         @cleanup_data = CleanupData::Data.new(config: config["cleanup_data"])
-        DumpCleaner::CleanupData::Uniqueness::Ensurer.instance.clear
       end
 
       def pre_cleanup
