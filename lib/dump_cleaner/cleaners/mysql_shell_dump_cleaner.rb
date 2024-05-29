@@ -14,14 +14,14 @@ module DumpCleaner
 
       def clean
         config["cleanups"].each do |cleanup|
+          puts "Cleaning table #{cleanup['db']}.#{cleanup['table']}…"
+
           @table_info = table_info(db: cleanup["db"], table: cleanup["table"])
           table_file_part = "#{cleanup['db']}@#{cleanup['table']}"
 
           Dir.glob("#{options[:source_dump_path]}/#{table_file_part}@@*.tsv.zst").each do |file|
-            p file
             Open3.pipeline_r(["zstd", "-dc", file], ["head", "-n", "10000000"]) do |tsv_data, wait_thread|
               destination_file = file.sub(options[:source_dump_path], options[:destination_dump_path])
-              p destination_file
 
               Open3.pipeline_w(["zstd", "-qfo", destination_file]) do |zstd_out, wait_thread|
                 tsv_data.each_line do |line|
@@ -30,6 +30,8 @@ module DumpCleaner
               end
             end
           end
+
+          puts
         end
       end
 
@@ -59,6 +61,7 @@ module DumpCleaner
 
         cleanup["columns"].each do |column|
           column_index = @table_info.dig("options", "columns").index(column["name"])
+          raise "Invalid column specified in config: #{column['name']}" unless column_index
 
           next if record[column_index] == "\\N" # ignore NULL values
 

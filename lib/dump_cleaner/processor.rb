@@ -9,7 +9,6 @@ module DumpCleaner
 
     def initialize(options)
       @options = options
-      p @options
     end
 
     def run
