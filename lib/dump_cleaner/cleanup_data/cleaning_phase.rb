@@ -7,7 +7,7 @@ module DumpCleaner
 
       def initialize(config:)
         @config = config
-        @workflow_steps = {}
+        @workflow_steps_cache = {}
       end
 
       def clean_value_for(orig_value, type:, cleanup_data:, record: {}, keep_record: false)
@@ -46,7 +46,7 @@ module DumpCleaner
 
       def workflow_steps(type:, steps: [])
         cache_key = "#{type}-#{steps.map { _1['step'] }.join('_')}"
-        @workflow_steps[cache_key] ||= steps.map do |step_config|
+        @workflow_steps_cache[cache_key] ||= steps.map do |step_config|
           lambda do |data:, orig_value:, record:, repetition:|
             DumpCleaner::CleanupData::CleaningSteps.const_get(step_config["step"])
                                                    .new(data:, type:, step_config:, repetition:)
