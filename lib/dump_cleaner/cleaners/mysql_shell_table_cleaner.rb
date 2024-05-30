@@ -19,7 +19,7 @@ module DumpCleaner
       end
 
       def clean
-        cleanup_table = config.cleanup_table_config(db: @db, table: @table)
+        table_config = config.cleanup_table_config(db: @db, table: @table)
         puts "Cleaning table #{@table_info.db_dot_table}…"
 
         DumpCleaner::CleanupData::Uniqueness::Ensurer.instance.clear
@@ -28,7 +28,7 @@ module DumpCleaner
           Open3.pipeline_r(["zstd", "-dc", file], ["head", "-n", "10000000"]) do |tsv_data, _wait_thread|
             Open3.pipeline_w(["zstd", "-qfo", destination_file_for(file)]) do |zstd_out, _wait_thread|
               tsv_data.each_line do |line|
-                zstd_out.print clean_line(line, cleanup_table:)
+                zstd_out.print clean_line(line, table_config:)
               end
             end
           end
@@ -39,14 +39,14 @@ module DumpCleaner
 
       private
 
-      def clean_line(line, cleanup_table:)
+      def clean_line(line, table_config:)
         record = line.split("\t")
-        record_context = record_context(record, cleanup_table:)
+        record_context = record_context(record, table_config:)
         print "\r#{record_context['id']}… " if (record_context["id"].to_i % 10_000).zero?
 
-        keep_record = keep_record?(record_context, cleanup_table:)
+        keep_record = keep_record?(record_context, table_config:)
 
-        cleanup_table.columns.each do |column|
+        table_config.columns.each do |column|
           column_index = @table_info.column_index(column.name)
           raise "Invalid column specified in config: #{column.name}" unless column_index
 
@@ -64,15 +64,15 @@ module DumpCleaner
         new_line
       end
 
-      def record_context(record, cleanup_table:)
-        columns = cleanup_table.record_context_columns
+      def record_context(record, table_config:)
+        columns = table_config.record_context_columns
         columns.each_with_object({}) { |column, context| context[column] = record[@table_info.column_index(column)] }
       end
 
-      def keep_record?(record, cleanup_table:)
-        return false unless cleanup_table.keep_same_conditions
+      def keep_record?(record, table_config:)
+        return false unless table_config.keep_same_conditions
 
-        Conditions.new(cleanup_table.keep_same_conditions).evaluate_to_true?(record)
+        Conditions.new(table_config.keep_same_conditions).evaluate_to_true?(record)
       end
 
       def warn_on_changed_line_length(orig_line, new_line, id:, record:)
