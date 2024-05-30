@@ -15,19 +15,19 @@ module DumpCleaner
     end
 
     def steps_for(type, phase)
-      cleanup_data_config_for(type)[phase.to_s] || []
+      cleanup_config_for(type)[phase.to_s] || []
     end
 
     def keep_same_conditions(type)
-      cleanup_data_config_for(type)["keep_same_conditions"]
+      cleanup_config_for(type)["keep_same_conditions"]
     end
 
     def ignore_record_keep_same_conditions?(type)
-      cleanup_data_config_for(type)["ignore_record_keep_same_conditions"]
+      cleanup_config_for(type)["ignore_record_keep_same_conditions"]
     end
 
     def uniqueness_wanted?(type)
-      cleanup_data_config_for(type)["unique"]
+      cleanup_config_for(type)["unique"]
     end
 
     def table_cleanups
@@ -68,9 +68,9 @@ module DumpCleaner
       YAML.load_file(config_file)
     end
 
-    def cleanup_data_config_for(type)
-      @config.dig("cleanup_data", type.to_s) ||
-        raise("Missing config for type '#{type}' in the 'cleanup_data' section.")
+    def cleanup_config_for(type)
+      @config.dig("cleanup_types", type.to_s) ||
+        raise("Missing type '#{type}' in the 'cleanup_types' section in config.")
     end
   end
 end
