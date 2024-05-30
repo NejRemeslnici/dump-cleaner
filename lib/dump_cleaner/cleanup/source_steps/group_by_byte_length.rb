@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DumpCleaner
-  module CleanupData
+  module Cleanup
     module SourceSteps
       class GroupByByteLength
         def run(data, type:, under_keys: [])

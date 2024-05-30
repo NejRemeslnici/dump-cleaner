@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DumpCleaner
-  module CleanupData
+  module Cleanup
     module CleaningSteps
       class SameLengthRandomString < Base
         require "random/formatter"

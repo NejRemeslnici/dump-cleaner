@@ -1,7 +1,7 @@
 require "singleton"
 
 module DumpCleaner
-  module CleanupData
+  module Cleanup
     module Uniqueness
       def repeat_until_unique(type:, orig_value: nil, record: {}, max_retries: 100, &block)
         n = 0

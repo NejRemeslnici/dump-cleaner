@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DumpCleaner
-  module CleanupData
+  module Cleanup
     module SourceSteps
       class LoadYamlFile
         def run(data, type:, file:, under_key: nil)

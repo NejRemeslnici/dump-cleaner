@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DumpCleaner
-  module CleanupData
+  module Cleanup
     module CleaningSteps
       class RandomizePhoneNumber < Base
         def run(orig_value:, record: {}, format: '(?<front>\+(?:\d{6}))(?<x>\d{6})')

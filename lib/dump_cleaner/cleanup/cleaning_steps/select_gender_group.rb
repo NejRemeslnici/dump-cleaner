@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DumpCleaner
-  module CleanupData
+  module Cleanup
     module CleaningSteps
       class SelectGenderGroup < Base
         FEMALE_REGEXPS = {

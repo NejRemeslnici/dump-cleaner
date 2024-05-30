@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DumpCleaner
-  module CleanupData
+  module Cleanup
     module CleaningSteps
       class RandomizeNumber < Base
         def run(orig_value:, record: {}, max_difference: 1.0)

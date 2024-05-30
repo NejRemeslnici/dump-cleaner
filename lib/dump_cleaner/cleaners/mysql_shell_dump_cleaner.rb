@@ -12,7 +12,7 @@ module DumpCleaner
       end
 
       def clean
-        cleanup_data = CleanupData::Data.new(config:)
+        cleanup_data = Cleanup::Data.new(config:)
 
         config.cleanup_tables.each do |db, table|
           table_cleaner = MysqlShellTableCleaner.new(db:, table:, config:, options:, cleanup_data:)

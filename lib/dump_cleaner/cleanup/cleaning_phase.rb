@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DumpCleaner
-  module CleanupData
+  module Cleanup
     class CleaningPhase
       include Uniqueness
 
@@ -20,7 +20,7 @@ module DumpCleaner
         if config.uniqueness_wanted?(type)
           repeat_until_unique(type:, record:, orig_value:) do |repetition|
             if keep_value
-              DumpCleaner::CleanupData::CleaningSteps::RepetitionSuffix.new(data: cleanup_data, type:, repetition:)
+              DumpCleaner::Cleanup::CleaningSteps::RepetitionSuffix.new(data: cleanup_data, type:, repetition:)
                                                                        .run(orig_value:, record:)
             else
               run_workflow(orig_value, type:, cleanup_data:, record:, repetition:)
@@ -48,7 +48,7 @@ module DumpCleaner
         cache_key = "#{type}-#{steps.map { _1['step'] }.join('_')}"
         @workflow_steps_cache[cache_key] ||= steps.map do |step_config|
           lambda do |data:, orig_value:, record:, repetition:|
-            DumpCleaner::CleanupData::CleaningSteps.const_get(step_config["step"])
+            DumpCleaner::Cleanup::CleaningSteps.const_get(step_config["step"])
                                                    .new(data:, type:, step_config:, repetition:)
                                                    .clean_value_for(orig_value:, record:)
           end

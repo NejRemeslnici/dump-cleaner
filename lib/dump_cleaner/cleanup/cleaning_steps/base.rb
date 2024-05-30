@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DumpCleaner
-  module CleanupData
+  module Cleanup
     module CleaningSteps
       class Base
         attr_reader :data, :type, :step_config, :repetition

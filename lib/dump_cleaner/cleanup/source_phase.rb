@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DumpCleaner
-  module CleanupData
+  module Cleanup
     class SourcePhase
       def initialize(config:)
         @config = config
@@ -22,7 +22,7 @@ module DumpCleaner
         steps.map do |step_config|
           params = (step_config["params"] || {}).transform_keys(&:to_sym)
           lambda do |data:, type:|
-            DumpCleaner::CleanupData::SourceSteps.const_get(step_config['step'])
+            DumpCleaner::Cleanup::SourceSteps.const_get(step_config['step'])
                                                  .new.run(data, type:, **params)
           end
         end
