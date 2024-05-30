@@ -49,7 +49,7 @@ module DumpCleaner
 
       def columns
         @columns ||= Array(@cleanup_table_config["columns"]).map do
-          CleanupTableColumnConfig.new(name: _1["name"], cleanup_type: _1["cleanup_data_type"])
+          CleanupTableColumnConfig.new(name: _1["name"], cleanup_type: _1["cleanup_type"])
         end
       end
 
