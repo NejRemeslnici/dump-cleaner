@@ -3,7 +3,9 @@ require "singleton"
 module DumpCleaner
   module Cleanup
     module Uniqueness
-      def repeat_until_unique(type:, orig_value: nil, record: {}, max_retries: 100, &block)
+      class MaxRetriesReachedError < StandardError; end
+
+      def repeat_until_unique(type:, orig_value: nil, record: {}, max_retries: 1000, &block)
         n = 0
         result = nil
 
@@ -21,8 +23,7 @@ module DumpCleaner
 
           if n >= max_retries
             warn "Max retry count #{n} reached for ID:#{record['id']} type:#{type} orig:#{orig_value} current:#{result}"
-            result = nil
-            break
+            raise MaxRetriesReachedError
           end
 
           n += 1
