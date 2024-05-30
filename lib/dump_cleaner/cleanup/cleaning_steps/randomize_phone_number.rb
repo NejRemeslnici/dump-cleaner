@@ -12,7 +12,7 @@ module DumpCleaner
             return
           end
 
-          random = Random.new(Zlib.crc32(orig_value) + repetition)
+          random = Random.new(crc32(orig_value:, record:))
 
           new_value = String.new
           orig_value.match(regex).named_captures.each do |name, capture|

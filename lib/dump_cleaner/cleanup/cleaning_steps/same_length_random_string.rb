@@ -5,10 +5,9 @@ module DumpCleaner
     module CleaningSteps
       class SameLengthRandomString < Base
         require "random/formatter"
-        require "zlib"
 
         def run(orig_value:, record: {})
-          random = Random.new(Zlib.crc32(orig_value) + repetition)
+          random = Random.new(crc32(orig_value:, record:))
           random.alphanumeric(orig_value.bytes.length).downcase
         end
       end

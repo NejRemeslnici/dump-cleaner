@@ -5,7 +5,7 @@ module DumpCleaner
     module CleaningSteps
       class RandomizeNumber < Base
         def run(orig_value:, record: {}, max_difference: 1.0)
-          random = Random.new(Zlib.crc32(orig_value) + repetition)
+          random = Random.new(crc32(orig_value:, record:))
           spec = "%0.#{orig_value.scan(/\.(.*)$/).first&.first.to_s.length}f"
           new_value = orig_value.to_f + random.rand(max_difference * 2 * 1_000_000) / 1_000_000 - max_difference
           new_value *= -1 if (orig_value.to_f <=> 0) != (new_value <=> 0) # align sign

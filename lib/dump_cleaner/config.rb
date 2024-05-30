@@ -71,6 +71,10 @@ module DumpCleaner
         @cleanup_table_config["table"]
       end
 
+      def id_column
+        @cleanup_table_config["id_column"] || "id"
+      end
+
       def columns
         @columns ||= Array(@cleanup_table_config["columns"]).map do
           CleanupTableColumnConfig.new(name: _1["name"], cleanup_type: _1["cleanup_type"])
