@@ -31,7 +31,17 @@ module DumpCleaner
     end
 
     def cleanup_tables
-      @cleanup_tables ||= Array(@config["cleanup_tables"]).map { CleanupTableConfig.new(_1) }
+      cleanup_table_configs.map { [_1.db, _1.table] }
+    end
+
+    def cleanup_table_config(db:, table:)
+      cleanup_table_configs.find { _1.db == db && _1.table == table }
+    end
+
+    private
+
+    def cleanup_table_configs
+      @cleanup_table_configs ||= Array(@config["cleanup_tables"]).map { CleanupTableConfig.new(_1) }
     end
 
     class CleanupTableConfig

@@ -4,6 +4,8 @@ module DumpCleaner
   module CleanupData
     module CleaningSteps
       class DeterministicSample < Base
+        require "zlib"
+
         def run(orig_value:, record: {}, uniqueness_strategy: :resample)
           return unless data
 

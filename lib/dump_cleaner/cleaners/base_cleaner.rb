@@ -3,12 +3,11 @@
 module DumpCleaner
   module Cleaners
     class BaseCleaner
-      attr_reader :config, :options, :cleanup_data
+      attr_reader :config, :options
 
       def initialize(config:, options:)
         @config = config
         @options = options
-        @cleanup_data = CleanupData::Data.new(config:)
       end
 
       def pre_cleanup
