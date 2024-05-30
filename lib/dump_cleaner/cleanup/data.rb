@@ -3,18 +3,14 @@
 module DumpCleaner
   module Cleanup
     class Data
-      attr_reader :config
-
       def initialize(config:)
         @config = config
-        @source_phase = SourcePhase.new(config:)
-        @cleaning_phase = CleaningPhase.new(config:)
+        @workflow = SourceWorkflow.new
+        @data_cache = {}
       end
 
-      def clean(type:, orig_value:, record: {}, keep_record: false)
-        cleanup_data = @source_phase.data_for(type, steps: config.steps_for(type, :source))
-
-        @cleaning_phase.clean_value_for(orig_value, type:, cleanup_data:, record:, keep_record:)
+      def data_for(type)
+        @data_cache[type] ||= @workflow.run(type:, steps: @config.steps_for(type, :source))
       end
     end
   end

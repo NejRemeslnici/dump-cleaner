@@ -7,11 +7,12 @@ module DumpCleaner
 
       include MysqlShellDumpHelpers
 
-      def initialize(db:, table:, config:, options:, cleanup_data:)
+      def initialize(db:, table:, config:, options:)
         super(config:, options:)
         @db = db
         @table = table
-        @cleanup_data = cleanup_data
+        @cleanup_data = Cleanup::Data.new(config:)
+        @cleaning = Cleanup::Cleaning.new(config:)
       end
 
       def pre_cleanup
@@ -52,10 +53,11 @@ module DumpCleaner
 
           next if record[column_index] == "\\N" # ignore NULL values
 
-          record[column_index] = @cleanup_data.clean(type: column.cleanup_type,
-                                                     orig_value: record[column_index],
-                                                     record: record_context,
-                                                     keep_record:)
+          record[column_index] = @cleaning.clean_value_for(record[column_index],
+                                                           type: column.cleanup_type,
+                                                           cleanup_data: @cleanup_data.data_for(column.cleanup_type),
+                                                           record: record_context,
+                                                           keep_record:)
         end
 
         new_line = record.join("\t")

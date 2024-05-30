@@ -12,10 +12,8 @@ module DumpCleaner
       end
 
       def clean
-        cleanup_data = Cleanup::Data.new(config:)
-
         config.cleanup_tables.each do |db, table|
-          table_cleaner = MysqlShellTableCleaner.new(db:, table:, config:, options:, cleanup_data:)
+          table_cleaner = MysqlShellTableCleaner.new(db:, table:, config:, options:)
 
           table_cleaner.pre_cleanup
           table_cleaner.clean
