@@ -3,5 +3,5 @@
 
 require "dump_cleaner"
 
-options = DumpCleaner::Options.parse(ARGV)
+options = DumpCleaner::Options.new(ARGV)
 DumpCleaner::Processor.new(options).run

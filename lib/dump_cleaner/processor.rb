@@ -25,7 +25,7 @@ module DumpCleaner
     private
 
     def config
-      @config ||= Config.new(options[:config_file])
+      @config ||= Config.new(options.config_file)
     end
   end
 end

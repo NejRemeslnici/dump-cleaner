@@ -13,7 +13,7 @@ module DumpCleaner
       end
 
       def pre_cleanup
-        @table_info = DumpTableInfo.load(db: @db, table: @table, source_dump_path: @options[:source_dump_path])
+        @table_info = DumpTableInfo.load(db: @db, table: @table, source_dump_path: options.source_dump_path)
       end
 
       def clean
@@ -22,9 +22,9 @@ module DumpCleaner
 
         DumpCleaner::CleanupData::Uniqueness::Ensurer.instance.clear
 
-        Dir.glob("#{source_dump_path}/#{@table_info.db_at_table}@@*.tsv.zst").each do |file|
+        Dir.glob("#{options.source_dump_path}/#{@table_info.db_at_table}@@*.tsv.zst").each do |file|
           Open3.pipeline_r(["zstd", "-dc", file], ["head", "-n", "10000000"]) do |tsv_data, _wait_thread|
-            destination_file = file.sub(@options[:source_dump_path], @options[:destination_dump_path])
+            destination_file = file.sub(options.source_dump_path, options.destination_dump_path)
 
             Open3.pipeline_w(["zstd", "-qfo", destination_file]) do |zstd_out, _wait_thread|
               tsv_data.each_line do |line|
@@ -38,10 +38,6 @@ module DumpCleaner
       end
 
       private
-
-      def source_dump_path
-        @options[:source_dump_path]
-      end
 
       def clean_line(line, cleanup_table:)
         record = line.split("\t")

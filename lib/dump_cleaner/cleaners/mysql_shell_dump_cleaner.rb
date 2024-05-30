@@ -27,17 +27,13 @@ module DumpCleaner
 
       private
 
-      def source_dump_path
-        @options[:source_dump_path]
-      end
-
       def prepare_destination_dump
-        Dir.mkdir(@options[:destination_dump_path]) unless Dir.exist?(@options[:destination_dump_path])
+        Dir.mkdir(options.destination_dump_path) unless Dir.exist?(options.destination_dump_path)
       end
 
       def copy_remaining_files
-        Dir.glob("#{@options[:source_dump_path]}/*").each do |file|
-          destination_file = file.sub(@options[:source_dump_path], @options[:destination_dump_path])
+        Dir.glob("#{options.source_dump_path}/*").each do |file|
+          destination_file = file.sub(options.source_dump_path, options.destination_dump_path)
           FileUtils.cp(file, destination_file, preserve: true) unless File.exist?(destination_file)
         end
       end
