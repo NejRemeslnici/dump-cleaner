@@ -4,7 +4,7 @@ module DumpCleaner
   class Config
     require "yaml"
 
-    ColumnConfig = Data.define(:name, :cleanup_type)
+    CleanupTableColumnConfig = Data.define(:name, :cleanup_type)
 
     def initialize(config_file)
       @config = load(config_file)
@@ -30,35 +30,35 @@ module DumpCleaner
       cleanup_config_for(type)["unique"]
     end
 
-    def table_cleanups
-      @table_cleanups ||= Array(@config["table_cleanups"]).map { TableCleanupConfig.new(_1) }
+    def cleanup_tables
+      @cleanup_tables ||= Array(@config["cleanup_tables"]).map { CleanupTableConfig.new(_1) }
     end
 
-    class TableCleanupConfig
-      def initialize(table_cleanup_config)
-        @table_cleanup_config = table_cleanup_config
+    class CleanupTableConfig
+      def initialize(cleanup_table_config)
+        @cleanup_table_config = cleanup_table_config
       end
 
       def db
-        @table_cleanup_config["db"]
+        @cleanup_table_config["db"]
       end
 
       def table
-        @table_cleanup_config["table"]
+        @cleanup_table_config["table"]
       end
 
       def columns
-        @columns ||= Array(@table_cleanup_config["columns"]).map do
-          ColumnConfig.new(name: _1["name"], cleanup_type: _1["cleanup_data_type"])
+        @columns ||= Array(@cleanup_table_config["columns"]).map do
+          CleanupTableColumnConfig.new(name: _1["name"], cleanup_type: _1["cleanup_data_type"])
         end
       end
 
       def record_context_columns
-        @table_cleanup_config["record_context_columns"] || ["id"]
+        @cleanup_table_config["record_context_columns"] || ["id"]
       end
 
       def keep_same_conditions
-        @table_cleanup_config["keep_same_conditions"]
+        @cleanup_table_config["keep_same_conditions"]
       end
     end
 
