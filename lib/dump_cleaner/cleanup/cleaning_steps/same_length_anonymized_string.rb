@@ -5,13 +5,8 @@ module DumpCleaner
     module CleaningSteps
       class SameLengthAnonymizedString < Base
         def run(orig_value:, record: {})
-          rotate("anonymized #{type} " * 10, repetition).slice(0...orig_value.bytes.length)
-        end
-
-        private
-
-        def rotate(word, repetition)
-          word.chars.rotate(repetition).join
+          value = ("anonymized #{type} " * 100).slice(0...orig_value.bytes.length)
+          RepetitionSuffix.new_from(self).run(orig_value: value, record:)
         end
       end
     end

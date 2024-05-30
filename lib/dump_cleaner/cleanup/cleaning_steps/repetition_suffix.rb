@@ -9,6 +9,8 @@ module DumpCleaner
             orig_value
           elsif orig_value.length > repetition.to_s.length
             "#{orig_value[0..-repetition.to_s.length - 1]}#{repetition}"
+          else
+            SameLengthRandomString.new_from(self).run(orig_value:, record:)
           end
         end
       end
