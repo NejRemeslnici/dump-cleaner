@@ -30,35 +30,35 @@ module DumpCleaner
       cleanup_data_config_for(type)["unique"]
     end
 
-    def cleanups
-      @cleanups ||= Array(@config["cleanups"]).map { CleanupConfig.new(_1) }
+    def table_cleanups
+      @table_cleanups ||= Array(@config["table_cleanups"]).map { TableCleanupConfig.new(_1) }
     end
 
-    class CleanupConfig
-      def initialize(cleanup_config)
-        @cleanup_config = cleanup_config
+    class TableCleanupConfig
+      def initialize(table_cleanup_config)
+        @table_cleanup_config = table_cleanup_config
       end
 
       def db
-        @cleanup_config["db"]
+        @table_cleanup_config["db"]
       end
 
       def table
-        @cleanup_config["table"]
+        @table_cleanup_config["table"]
       end
 
       def columns
-        @columns ||= Array(@cleanup_config["columns"]).map do
+        @columns ||= Array(@table_cleanup_config["columns"]).map do
           ColumnConfig.new(name: _1["name"], cleanup_type: _1["cleanup_data_type"])
         end
       end
 
       def record_context_columns
-        @cleanup_config["record_context_columns"] || ["id"]
+        @table_cleanup_config["record_context_columns"] || ["id"]
       end
 
       def keep_same_conditions
-        @cleanup_config["keep_same_conditions"]
+        @table_cleanup_config["keep_same_conditions"]
       end
     end
 

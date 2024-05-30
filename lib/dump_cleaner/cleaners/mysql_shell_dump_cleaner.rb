@@ -13,13 +13,13 @@ module DumpCleaner
       end
 
       def clean
-        config.cleanups.each do |cleanup|
-          puts "Cleaning table #{cleanup.db}.#{cleanup.table}…"
+        config.table_cleanups.each do |table_cleanup|
+          puts "Cleaning table #{table_cleanup.db}.#{table_cleanup.table}…"
 
           DumpCleaner::CleanupData::Uniqueness::Ensurer.instance.clear
 
-          @table_info = table_info(db: cleanup.db, table: cleanup.table)
-          table_file_part = "#{cleanup.db}@#{cleanup.table}"
+          @table_info = table_info(db: table_cleanup.db, table: table_cleanup.table)
+          table_file_part = "#{table_cleanup.db}@#{table_cleanup.table}"
 
           Dir.glob("#{options[:source_dump_path]}/#{table_file_part}@@*.tsv.zst").each do |file|
             Open3.pipeline_r(["zstd", "-dc", file], ["head", "-n", "10000000"]) do |tsv_data, wait_thread|
@@ -27,7 +27,7 @@ module DumpCleaner
 
               Open3.pipeline_w(["zstd", "-qfo", destination_file]) do |zstd_out, _wait_thread|
                 tsv_data.each_line do |line|
-                  zstd_out.print cleaned_line(line, cleanup:)
+                  zstd_out.print cleaned_line(line, table_cleanup:)
                 end
               end
             end
@@ -54,14 +54,14 @@ module DumpCleaner
         Dir.mkdir(options[:destination_dump_path]) unless Dir.exist?(options[:destination_dump_path])
       end
 
-      def cleaned_line(line, cleanup:)
+      def cleaned_line(line, table_cleanup:)
         record = line.split("\t")
-        record_context = record_context(record, cleanup:)
+        record_context = record_context(record, table_cleanup:)
         print "\r#{record_context['id']}… " if (record_context["id"].to_i % 10_000).zero?
 
-        keep_record = keep_record?(record_context, cleanup:)
+        keep_record = keep_record?(record_context, table_cleanup:)
 
-        cleanup.columns.each do |column|
+        table_cleanup.columns.each do |column|
           column_index = @table_info.dig("options", "columns").index(column.name)
           raise "Invalid column specified in config: #{column.name}" unless column_index
 
@@ -79,17 +79,17 @@ module DumpCleaner
         new_line
       end
 
-      def record_context(record, cleanup:)
+      def record_context(record, table_cleanup:)
         columns = @table_info.dig("options", "columns")
         indexes = columns.each_with_index.to_h
-        columns &= cleanup.record_context_columns
+        columns &= table_cleanup.record_context_columns
         columns.each_with_object({}) { |column, context| context[column] = record[indexes[column]] }
       end
 
-      def keep_record?(record, cleanup:)
-        return false unless cleanup.keep_same_conditions
+      def keep_record?(record, table_cleanup:)
+        return false unless table_cleanup.keep_same_conditions
 
-        Conditions.new(cleanup.keep_same_conditions).evaluate_to_true?(record)
+        Conditions.new(table_cleanup.keep_same_conditions).evaluate_to_true?(record)
       end
 
       def warn_on_changed_line_length(orig_line, new_line, id:, record:)
