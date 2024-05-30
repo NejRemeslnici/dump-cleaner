@@ -3,9 +3,9 @@
 module DumpCleaner
   module Cleanup
     module CleaningSteps
-      class ApproximateEmail < Base
+      class RandomizeEmail < Base
         def run(orig_value:, record: {})
-          mailbox, domain = orig_value.split("@")
+          mailbox, domain = orig_value.split("@", 2)
 
           if !mailbox || !domain || mailbox.empty? || domain.empty? || !domain.include?(".")
             warn "ID: #{record['id']} invalid email #{orig_value}" if repetition.zero?
@@ -26,7 +26,7 @@ module DumpCleaner
         private
 
         def czech_or_random_word_instead_of(word, record:)
-          czech_word_instead_of(word, record:) || random_word_instead_of(word)
+          czech_word_instead_of(word, record:) || random_word_instead_of(word, record:)
         end
 
         def czech_word_instead_of(word, record:)
@@ -38,8 +38,8 @@ module DumpCleaner
           end
         end
 
-        def random_word_instead_of(word)
-          SameLengthRandomString.new_from(self).run(orig_value: word)
+        def random_word_instead_of(word, record:)
+          SameLengthRandomString.new_from(self).run(orig_value: word, record:)
         end
       end
     end
