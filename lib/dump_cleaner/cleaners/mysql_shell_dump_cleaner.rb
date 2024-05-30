@@ -5,6 +5,8 @@ module DumpCleaner
     class MysqlShellDumpCleaner < BaseCleaner
       require "fileutils"
 
+      include MysqlShellDumpHelpers
+
       def pre_cleanup
         prepare_destination_dump
       end
@@ -33,7 +35,7 @@ module DumpCleaner
 
       def copy_remaining_files
         Dir.glob("#{options.source_dump_path}/*").each do |file|
-          destination_file = file.sub(options.source_dump_path, options.destination_dump_path)
+          destination_file = destination_file_for(file)
           FileUtils.cp(file, destination_file, preserve: true) unless File.exist?(destination_file)
         end
       end
