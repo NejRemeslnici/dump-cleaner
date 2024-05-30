@@ -25,7 +25,7 @@ module DumpCleaner
             Open3.pipeline_r(["zstd", "-dc", file], ["head", "-n", "10000000"]) do |tsv_data, wait_thread|
               destination_file = file.sub(options[:source_dump_path], options[:destination_dump_path])
 
-              Open3.pipeline_w(["zstd", "-qfo", destination_file]) do |zstd_out, wait_thread|
+              Open3.pipeline_w(["zstd", "-qfo", destination_file]) do |zstd_out, _wait_thread|
                 tsv_data.each_line do |line|
                   zstd_out.print cleaned_line(line, cleanup:)
                 end
@@ -74,12 +74,8 @@ module DumpCleaner
         end
 
         new_line = record.join("\t")
-        if new_line.bytes.length != line.bytes.length
-          warn "ID: #{record_context['id']} bytes length changed: #{line.bytes.length} => #{new_line.bytes.length}"
-          line.split("\t").each_with_index do |column, i|
-            warn "#{column} -> #{record[i]}" if !record[i] || column.bytes.length != record[i].bytes.length
-          end
-        end
+        warn_on_changed_line_length(line, new_line, id: record_context["id"], record:)
+
         new_line
       end
 
@@ -94,6 +90,15 @@ module DumpCleaner
         return false unless cleanup.keep_same_conditions
 
         Conditions.new(cleanup.keep_same_conditions).evaluate_to_true?(record)
+      end
+
+      def warn_on_changed_line_length(orig_line, new_line, id:, record:)
+        return if orig_line.bytes.length == new_line.bytes.length
+
+        warn "ID: #{id} bytes length changed: #{orig_line.bytes.length} => #{new_line.bytes.length}"
+        orig_line.split("\t").each_with_index do |column, i|
+          warn "#{column} -> #{record[i]}" if !record[i] || column.bytes.length != record[i].bytes.length
+        end
       end
     end
   end
