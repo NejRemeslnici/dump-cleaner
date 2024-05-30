@@ -9,6 +9,7 @@ module DumpCleaner
 
     def initialize(config_file)
       @config = load(config_file)
+      @steps_for = {}
     end
 
     def dump_format
@@ -16,7 +17,10 @@ module DumpCleaner
     end
 
     def steps_for(type, phase)
-      cleanup_config_for(type)[phase.to_s] || []
+      @steps_for[type] ||= {}
+      @steps_for[type][phase.to_s] ||= Array(cleanup_config_for(type)[phase.to_s]).map do
+        CleanupStepConfig.new(step: _1["step"], params: (_1["params"] || {}).transform_keys(&:to_sym))
+      end
     end
 
     def keep_same_conditions(type)

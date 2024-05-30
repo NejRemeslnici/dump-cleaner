@@ -35,9 +35,9 @@ module DumpCleaner
 
       def run_workflows(orig_value, type:, cleanup_data:, record: {}, repetition: 0)
         @workflow.run(orig_value:, type:, cleanup_data:, record:, repetition:,
-                      steps: config.steps_for(type, :cleaning)) ||
+                      step_configs: config.steps_for(type, :cleaning)) ||
           @workflow.run(orig_value:, type:, cleanup_data:, record:, repetition:,
-                        steps: config.steps_for(type, :failure))
+                        step_configs: config.steps_for(type, :failure))
       end
     end
   end

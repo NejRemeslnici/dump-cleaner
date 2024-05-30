@@ -10,7 +10,7 @@ module DumpCleaner
       end
 
       def data_for(type)
-        @data_cache[type] ||= @workflow.run(type:, steps: @config.steps_for(type, :source))
+        @data_cache[type] ||= @workflow.run(type:, step_configs: @config.steps_for(type, :source))
       end
     end
   end
