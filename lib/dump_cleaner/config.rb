@@ -5,6 +5,7 @@ module DumpCleaner
     require "yaml"
 
     CleanupTableColumnConfig = Data.define(:name, :cleanup_type)
+    CleanupStepConfig = Data.define(:step, :params)
 
     def initialize(config_file)
       @config = load(config_file)
@@ -40,8 +41,17 @@ module DumpCleaner
 
     private
 
+    def load(config_file)
+      YAML.load_file(config_file)
+    end
+
     def cleanup_table_configs
       @cleanup_table_configs ||= Array(@config["cleanup_tables"]).map { CleanupTableConfig.new(_1) }
+    end
+
+    def cleanup_config_for(type)
+      @config.dig("cleanup_types", type.to_s) ||
+        raise("Missing type '#{type}' in the 'cleanup_types' section in config.")
     end
 
     class CleanupTableConfig
@@ -70,17 +80,6 @@ module DumpCleaner
       def keep_same_conditions
         @cleanup_table_config["keep_same_conditions"]
       end
-    end
-
-    private
-
-    def load(config_file)
-      YAML.load_file(config_file)
-    end
-
-    def cleanup_config_for(type)
-      @config.dig("cleanup_types", type.to_s) ||
-        raise("Missing type '#{type}' in the 'cleanup_types' section in config.")
     end
   end
 end
