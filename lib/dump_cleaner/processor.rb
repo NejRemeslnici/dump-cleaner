@@ -9,6 +9,8 @@ module DumpCleaner
     end
 
     def run
+      start_time = Time.now
+
       cleaner_class = case config.dump_format
                       when "mysql_shell_zst"
                         Cleaners::MysqlShellDumpCleaner
@@ -20,6 +22,9 @@ module DumpCleaner
       cleaner.pre_cleanup
       cleaner.clean
       cleaner.post_cleanup
+
+      diff = Time.now - start_time
+      puts "Finished in #{diff.div(60)}m #{(diff % 60).to_i}s."
     end
 
     private
