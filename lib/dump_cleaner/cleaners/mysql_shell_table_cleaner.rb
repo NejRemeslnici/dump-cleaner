@@ -26,7 +26,8 @@ module DumpCleaner
         DumpCleaner::Cleanup::Uniqueness::Ensurer.instance.clear
 
         Dir.glob("#{options.source_dump_path}/#{@table_info.db_at_table}@@*.tsv.zst").each do |file|
-          Open3.pipeline_r(["zstd", "-dc", file], ["head", "-n", "10000000"]) do |tsv_data, _wait_thread|
+          # Open3.pipeline_r(["zstd", "-dc", file], ["head", "-n", "1000"]) do |tsv_data, _wait_thread|
+          Open3.pipeline_r(["zstd", "-dc", file]) do |tsv_data, _wait_thread|
             Open3.pipeline_w(["zstd", "-qfo", destination_file_for(file)]) do |zstd_out, _wait_thread|
               tsv_data.each_line do |line|
                 zstd_out.print clean_line(line, table_config:)
