@@ -2,8 +2,8 @@
 /.vscode/
 /.yardoc
 /_yardoc/
+/config/
 /coverage/
-/data/
 /doc/
 /pkg/
 /spec/reports/
