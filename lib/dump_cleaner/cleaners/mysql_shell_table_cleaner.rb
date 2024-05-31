@@ -71,11 +71,7 @@ module DumpCleaner
         context = columns.each_with_object({}) do |column, context|
           context[column] = record[@table_info.column_index(column)]
         end
-
-        unless context.key?(table_config.id_column)
-          context["id_column"] = record[@table_info.column_index(table_config.id_column)]
-        end
-
+        context["id_column"] = record[@table_info.column_index(table_config.id_column)]
         context
       end
 
