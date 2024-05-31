@@ -8,8 +8,8 @@ module DumpCleaner
           regex = Regexp.new("\\A#{format}\\z")
 
           unless orig_value.match?(regex)
-            warn "ID: #{record['id']} invalid phone number: #{orig_value}"
-            return
+            # warn "ID: #{record['id']} invalid phone number: #{orig_value}"
+            return nil
           end
 
           random = Random.new(crc32(orig_value:, record:))
