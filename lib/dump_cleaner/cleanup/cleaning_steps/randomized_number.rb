@@ -4,12 +4,22 @@ module DumpCleaner
   module Cleanup
     module CleaningSteps
       class RandomizedNumber < Base
-        def run(orig_value:, record: {}, max_difference: 1.0)
+        def run(orig_value:, record: {}, difference_within: 1.0)
           random = Random.new(crc32(orig_value:, record:))
-          spec = "%0.#{orig_value.to_s.scan(/\.(.*)$/).first&.first.to_s.length}f"
-          new_value = orig_value.to_f + random.rand(max_difference * 2 * 1_000_000) / 1_000_000 - max_difference
-          new_value *= -1 if (orig_value.to_f <=> 0) != (new_value <=> 0) # align sign
-          format(spec, new_value)
+
+          new_value = orig_value.to_f + random.rand(difference_within.to_f * 2) - difference_within.to_f
+
+          # keep sign to keep string length (warning: this skews the distribution of the random numbers)
+          if (orig_value.strip[0] == "-") && new_value.positive? || (orig_value.strip[0] != "-") && new_value.negative?
+            new_value *= -1
+          end
+
+          decimal_places = orig_value.split(".")[1].to_s.length
+          epsilon = 10**-decimal_places
+          clamped_value = new_value.clamp(orig_value.to_f - difference_within + epsilon,
+                                          orig_value.to_f + difference_within - epsilon)
+
+          format("%0#{orig_value.length}.#{decimal_places}f", clamped_value)
         end
       end
     end
