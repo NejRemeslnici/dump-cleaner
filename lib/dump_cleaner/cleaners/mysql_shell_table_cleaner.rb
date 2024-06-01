@@ -11,7 +11,7 @@ module DumpCleaner
         super(config:, options:)
         @db = db
         @table = table
-        @cleanup_data = Cleanup::Data.new(config:)
+        @cleanup_data = Cleanup::DataSource.new(config:)
         @cleaning = Cleanup::Cleaning.new(config:)
       end
 
