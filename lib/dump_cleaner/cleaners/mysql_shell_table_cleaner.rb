@@ -58,7 +58,8 @@ module DumpCleaner
                                                            type: column.cleanup_type,
                                                            cleanup_data: @cleanup_data.data_for(column.cleanup_type),
                                                            record: record_context,
-                                                           keep_record:)
+                                                           keep_record:,
+                                                           column:)
         end
 
         new_line = record.join("\t")

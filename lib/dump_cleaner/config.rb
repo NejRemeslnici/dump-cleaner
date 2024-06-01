@@ -4,7 +4,10 @@ module DumpCleaner
   class Config
     require "yaml"
 
-    CleanupTableColumnConfig = Data.define(:name, :cleanup_type)
+    CleanupTableColumnConfig = Data.define(:name, :cleanup_type, :unique) do
+      alias_method :unique?, :unique
+    end
+
     CleanupStepConfig = Data.define(:step, :params)
 
     def initialize(config_file)
@@ -29,10 +32,6 @@ module DumpCleaner
 
     def ignore_record_keep_same_conditions?(type)
       cleanup_config_for(type)["ignore_record_keep_same_conditions"]
-    end
-
-    def uniqueness_wanted?(type)
-      cleanup_config_for(type)["unique"]
     end
 
     def cleanup_tables
@@ -77,7 +76,7 @@ module DumpCleaner
 
       def columns
         @columns ||= Array(@cleanup_table_config["columns"]).map do
-          CleanupTableColumnConfig.new(name: _1["name"], cleanup_type: _1["cleanup_type"])
+          CleanupTableColumnConfig.new(name: _1["name"], cleanup_type: _1["cleanup_type"], unique: _1["unique"] == true)
         end
       end
 

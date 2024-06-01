@@ -12,12 +12,12 @@ module DumpCleaner
         @workflow = CleaningWorkflow.new
       end
 
-      def clean_value_for(orig_value, type:, cleanup_data:, record: {}, keep_record: false)
+      def clean_value_for(orig_value, type:, cleanup_data:, column:, record: {}, keep_record: false)
         keep_value = (keep_record && !config.ignore_record_keep_same_conditions?(type)) ||
                      ((conditions = config.keep_same_conditions(type)) &&
                       Conditions.new(conditions).evaluate_to_true?(record, column_value: orig_value))
 
-        if config.uniqueness_wanted?(type)
+        if column.unique?
           begin
             repeat_until_unique(type:, record:, orig_value:) do |repetition|
               if keep_value
