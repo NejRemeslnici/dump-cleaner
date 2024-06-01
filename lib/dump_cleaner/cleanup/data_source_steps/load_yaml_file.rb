@@ -2,7 +2,7 @@
 
 module DumpCleaner
   module Cleanup
-    module SourceSteps
+    module DataSourceSteps
       class LoadYamlFile
         def run(data, type:, file:, under_key: nil)
           loaded_data = YAML.load_file(file)

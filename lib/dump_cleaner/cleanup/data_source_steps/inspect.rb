@@ -2,7 +2,7 @@
 
 module DumpCleaner
   module Cleanup
-    module SourceSteps
+    module DataSourceSteps
       class Inspect
         include Inspection
 

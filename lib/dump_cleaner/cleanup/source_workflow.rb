@@ -18,8 +18,8 @@ module DumpCleaner
       def steps(type:, step_configs:)
         @workflow_steps_cache[cache_key(type:, step_configs:)] ||= step_configs.map do |step_config|
           lambda do |data:|
-            DumpCleaner::Cleanup::SourceSteps.const_get(step_config.step)
-                                             .new.run(data, type:, **step_config.params)
+            DumpCleaner::Cleanup::DataSourceSteps.const_get(step_config.step)
+                                                 .new.run(data, type:, **step_config.params)
           end
         end
       end

@@ -2,7 +2,7 @@
 
 module DumpCleaner
   module Cleanup
-    module SourceSteps
+    module DataSourceSteps
       class GroupByByteLength
         def run(data, type:, under_keys: [])
           group_by_lambda = -> { "#{_1.length}-#{_1.bytes.length}" }

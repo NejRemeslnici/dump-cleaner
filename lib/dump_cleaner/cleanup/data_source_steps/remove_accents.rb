@@ -2,7 +2,7 @@
 
 module DumpCleaner
   module Cleanup
-    module SourceSteps
+    module DataSourceSteps
       class RemoveAccents
         def run(data, type:, under_keys: [])
           block = -> { _1.unicode_normalize(:nfd).gsub(/\p{M}/, "") }
