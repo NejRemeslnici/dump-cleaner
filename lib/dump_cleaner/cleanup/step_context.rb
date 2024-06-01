@@ -3,6 +3,10 @@
 module DumpCleaner
   module Cleanup
     class StepContext
+      require "pp"
+
+      include Inspection
+
       attr_accessor :cleanup_data, :current_value, :repetition
       attr_reader :orig_value, :type, :record
 
@@ -25,8 +29,9 @@ module DumpCleaner
         new_context
       end
 
-      def inspect
-        { orig_value:, current_value:, type:, record:, repetition: }.inspect
+      def pretty_print(pp)
+        { orig_value:, current_value:, type:, record:, repetition:,
+          cleanup_data: subset(cleanup_data) }.pretty_print(pp)
       end
     end
   end
