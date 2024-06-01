@@ -4,8 +4,9 @@ module DumpCleaner
   module Cleanup
     module CleaningSteps
       class StaticString < Base
-        def run(orig_value:, record: {}, value:)
-          value
+        def run(value:)
+          step_context.current_value = value
+          step_context
         end
       end
     end

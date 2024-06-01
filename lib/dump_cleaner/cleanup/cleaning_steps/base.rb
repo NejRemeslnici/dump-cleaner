@@ -4,24 +4,27 @@ module DumpCleaner
   module Cleanup
     module CleaningSteps
       class Base
+        require "forwardable"
         require "zlib"
 
-        attr_reader :data, :type, :step_config, :repetition
+        extend Forwardable
 
-        def initialize(data:, type:, repetition: 0)
-          @data = data
-          @type = type
-          @repetition = repetition
+        def_delegators :step_context, :cleanup_data, :current_value, :orig_value, :type, :record, :repetition
+
+        attr_reader :step_context
+
+        def initialize(step_context)
+          unless instance_of?(DumpCleaner::Cleanup::CleaningSteps::Inspect)
+            # puts "Initializing #{self.class.name}"
+            # Inspect.new(step_context).run
+          end
+          @step_context = step_context
         end
 
-        def crc32(orig_value:, record:, use_repetition: true)
-          value_to_hash = "#{record['id_column']}-#{orig_value}"
+        def crc32(current_value:, record:, use_repetition: true)
+          value_to_hash = "#{record['id_column']}-#{current_value}"
           value_to_hash += "-#{repetition}" if use_repetition
           Zlib.crc32(value_to_hash)
-        end
-
-        def self.new_from(step)
-          new(data: step.data, type: step.type, repetition: step.repetition)
         end
       end
     end

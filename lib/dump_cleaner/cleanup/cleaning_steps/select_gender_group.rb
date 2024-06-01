@@ -9,14 +9,15 @@ module DumpCleaner
           "last_name" => /(ová|ova|ská)$/i
         }.freeze
 
-        def run(orig_value:, record: {})
-          data[guess_gender(type:, orig_value:)]
+        def run
+          step_context.cleanup_data = step_context.cleanup_data[guess_gender]
+          step_context
         end
 
         private
 
-        def guess_gender(type:, orig_value:)
-          orig_value.match?(FEMALE_REGEXPS[type]) ? "female" : "male"
+        def guess_gender
+          current_value.match?(FEMALE_REGEXPS[type]) ? "female" : "male"
         end
       end
     end

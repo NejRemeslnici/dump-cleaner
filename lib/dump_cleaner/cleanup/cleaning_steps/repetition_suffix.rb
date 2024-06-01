@@ -4,14 +4,16 @@ module DumpCleaner
   module Cleanup
     module CleaningSteps
       class RepetitionSuffix < Base
-        def run(orig_value:, record: {})
-          if repetition.zero?
-            orig_value
-          elsif orig_value.length > repetition.to_s.length
-            "#{orig_value[0..-repetition.to_s.length - 1]}#{repetition}"
-          else
-            SameLengthRandomString.new_from(self).run(orig_value:, record:)
-          end
+        def run
+          step_context.current_value = if repetition.zero?
+                                         current_value
+                                       elsif current_value.length > repetition.to_s.length
+                                         "#{current_value[0..-repetition.to_s.length - 1]}#{repetition}"
+                                       else
+                                         SameLengthRandomString.new(StepContext.new_from(step_context)).run
+                                                               .current_value
+                                       end
+          step_context
         end
       end
     end

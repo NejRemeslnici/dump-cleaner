@@ -4,9 +4,9 @@ module DumpCleaner
   module Cleanup
     module CleaningSteps
       class SameLengthAnonymizedString < Base
-        def run(orig_value:, record: {})
-          value = ("anonymized #{type} " * 100).slice(0...orig_value.bytes.length)
-          RepetitionSuffix.new_from(self).run(orig_value: value, record:)
+        def run
+          value = ("anonymized #{type} " * 100).slice(0...current_value.bytes.length)
+          RepetitionSuffix.new(StepContext.new_from(step_context, current_value: value)).run
         end
       end
     end

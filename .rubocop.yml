@@ -3,6 +3,9 @@ AllCops:
 
 Layout/LineLength:
   Max: 120
+  IgnoreCopDirectives: true
+  AllowedPatterns:
+    - ' # +'
 
 Metrics/AbcSize:
   Enabled: false

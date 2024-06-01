@@ -21,8 +21,8 @@ module DumpCleaner
           begin
             repeat_until_unique(type:, record:, orig_value:) do |repetition|
               if keep_value
-                DumpCleaner::Cleanup::CleaningSteps::RepetitionSuffix.new(data: cleanup_data, type:, repetition:)
-                                                                     .run(orig_value:, record:)
+                step_context = StepContext.new(orig_value:, type:, cleanup_data:, record:, repetition:)
+                DumpCleaner::Cleanup::CleaningSteps::RepetitionSuffix.new(step_context).run.current_value
               else
                 run_workflows(orig_value:, type:, cleanup_data:, record:, repetition:)
               end
@@ -46,12 +46,12 @@ module DumpCleaner
 
       def run_cleaning_workflow(orig_value:, type:, cleanup_data:, record: {}, repetition: 0)
         @workflow.run(orig_value:, type:, cleanup_data:, record:, repetition:,
-                      step_configs: config.steps_for(type, :cleaning))
+                      step_configs: config.steps_for(type, :cleaning)).current_value
       end
 
       def run_failure_workflow(orig_value:, type:, cleanup_data:, record: {}, repetition: 0)
         @workflow.run(orig_value:, type:, cleanup_data:, record:, repetition:,
-                      step_configs: config.steps_for(type, :failure))
+                      step_configs: config.steps_for(type, :failure)).current_value
       end
     end
   end

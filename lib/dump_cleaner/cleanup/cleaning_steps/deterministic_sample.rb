@@ -4,18 +4,21 @@ module DumpCleaner
   module Cleanup
     module CleaningSteps
       class DeterministicSample < Base
-        def run(orig_value:, record: {}, uniqueness_strategy: :resample)
-          return unless data
+        def run(uniqueness_strategy: :resample)
+          return step_context unless cleanup_data
 
           uniqueness_strategy = uniqueness_strategy.to_sym
-          if uniqueness_strategy == :suffix
-            sample = data[crc32(orig_value:, record:, use_repetition: false) % data.size]
-            RepetitionSuffix.new_from(self).run(orig_value: sample, record:)
-          elsif uniqueness_strategy == :resample
-            data[crc32(orig_value:, record:) % data.size]
-          else
-            raise ArgumentError, "Unknown uniqueness strategy: #{uniqueness_strategy}"
-          end
+          step_context.current_value =
+            if uniqueness_strategy == :suffix
+              sample = cleanup_data[crc32(current_value:, record:,
+                                          use_repetition: false) % cleanup_data.size]
+              RepetitionSuffix.new(StepContext.new_from(step_context, current_value: sample)).run.current_value
+            elsif uniqueness_strategy == :resample
+              cleanup_data[crc32(current_value:, record:) % cleanup_data.size]
+            else
+              raise ArgumentError, "Unknown uniqueness strategy: #{uniqueness_strategy}"
+            end
+          step_context
         end
       end
     end

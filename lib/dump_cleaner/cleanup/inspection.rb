@@ -5,9 +5,11 @@ module DumpCleaner
     module Inspection
       private
 
-      def inspect_data_subset(data, message:, values: 10)
+      def inspect_step_context(step_context, message: "Inspecting step context", values: 10)
         puts "#{message} (first #{values} values):"
-        pp subset(data, values:)
+        pp step_context
+        puts "cleanup_data:"
+        pp subset(step_context.cleanup_data, values:)
       end
 
       def subset(data, values: 10)
@@ -23,6 +25,8 @@ module DumpCleaner
         else
           subset_data = data
         end
+
+        subset_data
       end
     end
   end

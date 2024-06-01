@@ -6,9 +6,9 @@ module DumpCleaner
       class Inspect < Base
         include Inspection
 
-        def run(orig_value:, record: {}, values: 10)
-          inspect_data_subset(data, message: "Inspecting '#{type}' data for '#{orig_value}", values:)
-          data
+        def run(values: 10)
+          inspect_step_context(step_context, values:)
+          step_context
         end
       end
     end

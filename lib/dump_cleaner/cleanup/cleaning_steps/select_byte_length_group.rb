@@ -4,9 +4,10 @@ module DumpCleaner
   module Cleanup
     module CleaningSteps
       class SelectByteLengthGroup < Base
-        def run(orig_value:, record: {})
-          data["#{orig_value.length}-#{orig_value.bytes.length}"] ||
-            data["#{orig_value.bytes.length}-#{orig_value.bytes.length}"] # used if orig_value is accented but data isn't
+        def run
+          step_context.cleanup_data = cleanup_data["#{current_value.length}-#{current_value.bytes.length}"] ||
+                                      cleanup_data["#{current_value.bytes.length}-#{current_value.bytes.length}"] # used if current_value is accented but data isn't
+          step_context
         end
       end
     end

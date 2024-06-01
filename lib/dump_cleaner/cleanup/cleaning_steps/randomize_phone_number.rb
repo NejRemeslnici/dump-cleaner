@@ -4,18 +4,19 @@ module DumpCleaner
   module Cleanup
     module CleaningSteps
       class RandomizePhoneNumber < Base
-        def run(orig_value:, record: {}, format: '(?<front>\+(?:\d{6}))(?<x>\d{6})')
+        def run(format: '(?<front>\+(?:\d{6}))(?<x>\d{6})')
           regex = Regexp.new("\\A#{format}\\z")
 
-          unless orig_value.match?(regex)
-            # warn "ID: #{record['id']} invalid phone number: #{orig_value}"
-            return nil
+          unless current_value.match?(regex)
+            # warn "ID: #{record['id']} invalid phone number: #{current_value}"
+            step_context.current_value = nil
+            return step_context
           end
 
-          random = Random.new(crc32(orig_value:, record:))
+          random = Random.new(crc32(current_value:, record:))
 
           new_value = String.new
-          orig_value.match(regex).named_captures.each do |name, capture|
+          current_value.match(regex).named_captures.each do |name, capture|
             if name.start_with?("x")
               unless capture.match?(/^\d+$/)
                 raise "Invalid regexp for capture #{name} which matched to #{capture}: must match numbers only."
@@ -27,7 +28,8 @@ module DumpCleaner
             end
           end
 
-          new_value
+          step_context.current_value = new_value
+          step_context
         end
 
         private
