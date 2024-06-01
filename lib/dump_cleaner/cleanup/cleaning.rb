@@ -9,7 +9,7 @@ module DumpCleaner
 
       def initialize(config:)
         @config = config
-        @workflow = CleaningWorkflow.new
+        @workflow = Workflow.new(namespace: DumpCleaner::Cleanup::CleaningSteps)
       end
 
       def clean_value_for(orig_value, type:, cleanup_data:, column:, record: {}, keep_record: false)

@@ -5,7 +5,7 @@ module DumpCleaner
     class DataSource
       def initialize(config:)
         @config = config
-        @workflow = SourceWorkflow.new
+        @workflow = Workflow.new(namespace: DumpCleaner::Cleanup::DataSourceSteps)
         @data_cache = {}
       end
 
