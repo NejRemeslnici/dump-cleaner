@@ -6,10 +6,10 @@ module DumpCleaner
       attr_accessor :cleanup_data, :current_value, :repetition
       attr_reader :orig_value, :type, :record
 
-      def initialize(orig_value:, type:, cleanup_data:, record: {}, repetition: 0)
-        @orig_value = @current_value = orig_value
+      def initialize(type:, cleanup_data:, orig_value: nil, record: {}, repetition: 0)
         @type = type
         @cleanup_data = cleanup_data
+        @orig_value = @current_value = orig_value
         @record = record
         @repetition = repetition
       end

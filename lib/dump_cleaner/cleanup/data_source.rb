@@ -10,7 +10,9 @@ module DumpCleaner
       end
 
       def data_for(type)
-        @data_cache[type] ||= @workflow.run(type:, step_configs: @config.steps_for(type, :data_source))
+        step_context = StepContext.new(type:, cleanup_data: nil)
+        @data_cache[type] ||= @workflow.run(step_context, step_configs: @config.steps_for(type, :data_source))
+                                       .cleanup_data
       end
     end
   end

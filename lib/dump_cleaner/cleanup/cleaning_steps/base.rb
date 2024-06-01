@@ -14,10 +14,6 @@ module DumpCleaner
         attr_reader :step_context
 
         def initialize(step_context)
-          unless instance_of?(DumpCleaner::Cleanup::CleaningSteps::Inspect)
-            # puts "Initializing #{self.class.name}"
-            # Inspect.new(step_context).run
-          end
           @step_context = step_context
         end
 

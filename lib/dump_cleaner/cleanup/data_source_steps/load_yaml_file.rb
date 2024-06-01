@@ -3,18 +3,18 @@
 module DumpCleaner
   module Cleanup
     module DataSourceSteps
-      class LoadYamlFile
-        def run(data, type:, file:, under_key: nil)
+      class LoadYamlFile < Base
+        def run(file:, under_key: nil)
           loaded_data = YAML.load_file(file)
 
-          new_data = data.dup
-          if under_key
-            new_data ||= {}
-            new_data[under_key] = loaded_data
-            new_data
-          else
-            loaded_data
-          end
+          step_context.cleanup_data = if under_key
+                                        new_data ||= cleanup_data || {}
+                                        new_data[under_key] = loaded_data
+                                        new_data
+                                      else
+                                        loaded_data
+                                      end
+          step_context
         end
       end
     end

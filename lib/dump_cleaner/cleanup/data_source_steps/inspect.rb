@@ -3,12 +3,12 @@
 module DumpCleaner
   module Cleanup
     module DataSourceSteps
-      class Inspect
+      class Inspect < Base
         include Inspection
 
-        def run(data, type:, values: 10)
-          inspect_data_subset(data, message: "Inspecting '#{type}' data", values:)
-          data
+        def run(values: 10)
+          inspect_step_context(step_context, values:)
+          step_context
         end
       end
     end

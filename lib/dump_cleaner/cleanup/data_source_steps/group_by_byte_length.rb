@@ -3,19 +3,23 @@
 module DumpCleaner
   module Cleanup
     module DataSourceSteps
-      class GroupByByteLength
-        def run(data, type:, under_keys: [])
+      class GroupByByteLength < Base
+        def run(under_keys: [])
           group_by_lambda = -> { "#{_1.length}-#{_1.bytes.length}" }
 
-          if under_keys.any?
-            new_data = {}
-            data.each_key do |key|
-              new_data[key] = under_keys.include?(key) ? data[key].group_by(&group_by_lambda) : data[key]
+          step_context.cleanup_data = begin
+            if under_keys.any?
+              new_data = cleanup_data.dup
+              under_keys.each do |key|
+                new_data[key] = new_data[key].group_by(&group_by_lambda)
+              end
+              new_data
+            else
+              cleanup_data.group_by(&group_by_lambda)
             end
-            new_data
-          else
-            data.group_by(&group_by_lambda)
           end
+
+          step_context
         end
       end
     end
