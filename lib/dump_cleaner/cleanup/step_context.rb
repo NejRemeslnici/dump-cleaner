@@ -3,8 +3,8 @@
 module DumpCleaner
   module Cleanup
     class StepContext
-      attr_accessor :cleanup_data, :current_value
-      attr_reader :orig_value, :type, :record, :repetition
+      attr_accessor :cleanup_data, :current_value, :repetition
+      attr_reader :orig_value, :type, :record
 
       def initialize(orig_value:, type:, cleanup_data:, record: {}, repetition: 0)
         @orig_value = @current_value = orig_value

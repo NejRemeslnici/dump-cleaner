@@ -5,7 +5,7 @@ module DumpCleaner
     module Uniqueness
       class MaxRetriesReachedError < StandardError; end
 
-      def repeat_until_unique(type:, orig_value: nil, record: {}, max_retries: 1000, &block)
+      def repeat_until_unique(step_context:, max_retries: 1000, &block)
         n = 0
         result = nil
 
@@ -14,15 +14,15 @@ module DumpCleaner
 
           break unless result
 
-          unless Ensurer.instance.known?(type:, value: result)
-            Ensurer.instance.push(type:, value: result)
+          unless Ensurer.instance.known?(type: step_context.type, value: result)
+            Ensurer.instance.push(type: step_context.type, value: result)
             break
           end
 
-          # puts "ID: #{record['id']} type: #{type} orig: #{orig_value} current: #{result} repetition: #{n}"
+          # puts "ID: #{step_context.record['id']} type: #{step_context.type} orig: #{step_context.orig_value} current: #{result} repetition: #{n}"
 
           if n >= max_retries
-            warn "Max retry count #{n} reached for ID:#{record['id']} type:#{type} orig:#{orig_value} current:#{result}"
+            warn "Max retry count #{n} reached for ID:#{step_context.record['id']} type:#{step_context.type} orig:#{step_context.orig_value} current:#{result}"
             raise MaxRetriesReachedError
           end
 

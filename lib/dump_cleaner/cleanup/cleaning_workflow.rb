@@ -7,9 +7,8 @@ module DumpCleaner
         @workflow_steps_cache = {}
       end
 
-      def run(orig_value:, type:, cleanup_data:, step_configs:, record: {}, repetition: 0)
-        initial_step_context = StepContext.new(orig_value:, type:, cleanup_data:, record:, repetition:)
-        steps(type:, step_configs:).reduce(initial_step_context) do |step_context, step|
+      def run(initial_step_context, step_configs:)
+        steps(type: initial_step_context.type, step_configs:).reduce(initial_step_context.dup) do |step_context, step|
           step.call(step_context)
         end
       end

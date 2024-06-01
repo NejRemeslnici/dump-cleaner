@@ -17,41 +17,43 @@ module DumpCleaner
                      ((conditions = config.keep_same_conditions(type)) &&
                       Conditions.new(conditions).evaluate_to_true?(record, column_value: orig_value))
 
+        step_context = StepContext.new(orig_value:, type:, cleanup_data:, record:)
+
         if column.unique?
           begin
-            repeat_until_unique(type:, record:, orig_value:) do |repetition|
+            repeat_until_unique(step_context:) do |repetition|
+              step_context.repetition = repetition
+
               if keep_value
-                step_context = StepContext.new(orig_value:, type:, cleanup_data:, record:, repetition:)
                 DumpCleaner::Cleanup::CleaningSteps::RepetitionSuffix.new(step_context).run.current_value
               else
-                run_workflows(orig_value:, type:, cleanup_data:, record:, repetition:)
+                run_workflows(step_context)
               end
             end
           rescue MaxRetriesReachedError
-            repeat_until_unique(type:, record:, orig_value:) do |repetition|
-              run_failure_workflow(orig_value:, type:, cleanup_data:, record:, repetition:)
+            repeat_until_unique(step_context:) do |repetition|
+              step_context.repetition = repetition
+              run_failure_workflow(step_context)
             end
           end
         else
-          keep_value ? orig_value : run_workflows(orig_value:, type:, cleanup_data:, record:)
+          keep_value ? orig_value : run_workflows(step_context)
         end
       end
 
       private
 
-      def run_workflows(orig_value:, type:, cleanup_data:, record: {}, repetition: 0)
-        run_cleaning_workflow(orig_value:, type:, cleanup_data:, record:, repetition:) ||
-          run_failure_workflow(orig_value:, type:, cleanup_data:, record:, repetition:)
+      def run_workflows(step_context)
+        run_cleaning_workflow(step_context) || run_failure_workflow(step_context)
       end
 
-      def run_cleaning_workflow(orig_value:, type:, cleanup_data:, record: {}, repetition: 0)
-        @workflow.run(orig_value:, type:, cleanup_data:, record:, repetition:,
-                      step_configs: config.steps_for(type, :cleaning)).current_value
+      def run_cleaning_workflow(step_context)
+        @workflow.run(step_context, step_configs: config.steps_for(step_context.type, :cleaning)).current_value
       end
 
-      def run_failure_workflow(orig_value:, type:, cleanup_data:, record: {}, repetition: 0)
-        @workflow.run(orig_value:, type:, cleanup_data:, record:, repetition:,
-                      step_configs: config.steps_for(type, :failure)).current_value
+      def run_failure_workflow(step_context)
+        step_context.current_value = step_context.orig_value # reset current_value
+        @workflow.run(step_context, step_configs: config.steps_for(step_context.type, :failure)).current_value
       end
     end
   end
