@@ -26,6 +26,14 @@ module DumpCleaner
 
         subset_data
       end
+
+      def truncate(value, to: 30, omission: "…")
+        return value.dup if value.length <= to
+
+        length_with_room_for_omission = to - omission.length
+        stop = length_with_room_for_omission
+        +"#{value[0, stop]}#{omission}"
+      end
     end
   end
 end

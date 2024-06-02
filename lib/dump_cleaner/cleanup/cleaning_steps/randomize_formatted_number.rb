@@ -4,6 +4,8 @@ module DumpCleaner
   module Cleanup
     module CleaningSteps
       class RandomizeFormattedNumber < Base
+        include Inspection
+
         def run(format:)
           regex = Regexp.new("\\A#{format}\\z")
 
@@ -12,7 +14,9 @@ module DumpCleaner
           end
 
           unless current_value.match?(regex)
-            Log.warn { "Invalid formatted number: id: #{record['id']}, value: #{current_value}" } if repetition.zero?
+            if repetition.zero?
+              Log.warn { "Invalid value: type=#{type}, id=#{record['id']}, value=#{truncate(current_value)}" }
+            end
             step_context.current_value = nil
             return step_context
           end
