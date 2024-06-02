@@ -27,5 +27,9 @@ module DumpCleaner
         (column ? record[column] : column_value).send(conversion || :itself).send(op, value)
       end.any?
     end
+
+    def self.evaluate_to_true_in_step?(conditions:, step_context:)
+      new(conditions).evaluate_to_true?(step_context.record, column_value: step_context.orig_value)
+    end
   end
 end
