@@ -3,12 +3,12 @@
 module DumpCleaner
   module Cleanup
     module CleaningSteps
-      class RandomizePhoneNumber < Base
-        def run(format: '(?<front>\+(?:\d{6}))(?<x>\d{6})')
+      class RandomizeFormattedNumber < Base
+        def run(format:)
           regex = Regexp.new("\\A#{format}\\z")
 
           unless current_value.match?(regex)
-            # warn "ID: #{record['id']} invalid phone number: #{current_value}"
+            # warn "ID: #{record['id']} invalid formatted number: #{current_value}"
             step_context.current_value = nil
             return step_context
           end
