@@ -15,7 +15,7 @@ module DumpCleaner
 
           new_mailbox = czech_or_random_word_instead_of(mailbox)
 
-          step_context.current_value = if cleanup_data["domains"].include?(domain)
+          step_context.current_value = if cleanup_data["well_known_domains"].include?(domain)
                                          "#{new_mailbox}@#{domain}"
                                        else
                                          tld2, _dot, tld = domain.rpartition(".")
