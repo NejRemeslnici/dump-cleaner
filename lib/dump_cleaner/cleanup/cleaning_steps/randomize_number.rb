@@ -3,7 +3,7 @@
 module DumpCleaner
   module Cleanup
     module CleaningSteps
-      class RandomizedNumber < Base
+      class RandomizeNumber < Base
         def run(difference_within: 1.0)
           random = Random.new(crc32(current_value:, record:))
 
