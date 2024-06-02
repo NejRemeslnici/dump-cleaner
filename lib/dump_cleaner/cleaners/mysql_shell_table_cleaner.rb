@@ -46,7 +46,7 @@ module DumpCleaner
         record_context = record_context(record, table_config:)
         print "\r#{record_context['id']}… " if (record_context["id"].to_i % 10_000).zero?
 
-        keep_record = keep_record?(record_context, table_config:)
+        keep_record = keep_same_record?(record_context, table_config:)
 
         table_config.columns.each do |column_config|
           column_index = @table_info.column_index(column_config.name)
@@ -79,10 +79,10 @@ module DumpCleaner
         context
       end
 
-      def keep_record?(record, table_config:)
-        return false unless table_config.keep_same_conditions
+      def keep_same_record?(record, table_config:)
+        return false unless table_config.keep_same_record_conditions
 
-        Conditions.new(table_config.keep_same_conditions).evaluate_to_true?(record)
+        Conditions.new(table_config.keep_same_record_conditions).evaluate_to_true?(record)
       end
 
       def warn_on_changed_line_length(orig_line, new_line, id:, record:)

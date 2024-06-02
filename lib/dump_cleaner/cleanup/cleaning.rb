@@ -16,7 +16,7 @@ module DumpCleaner
         step_context = StepContext.new(orig_value:, type:, cleanup_data:, record:)
 
         # return orig_value if keep_same conditions are met
-        if (keep_record && !config.ignore_record_keep_same_conditions?(type)) ||
+        if (keep_record && !config.ignore_keep_same_record_conditions?(type)) ||
            Conditions.evaluate_to_true_in_step?(conditions: config.keep_same_conditions(type), step_context:)
           return orig_value_with_optional_suffix(step_context, column_config:)
         end

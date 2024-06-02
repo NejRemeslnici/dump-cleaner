@@ -30,8 +30,8 @@ module DumpCleaner
       cleanup_config_for(type)["keep_same_conditions"]
     end
 
-    def ignore_record_keep_same_conditions?(type)
-      cleanup_config_for(type)["ignore_record_keep_same_conditions"]
+    def ignore_keep_same_record_conditions?(type)
+      cleanup_config_for(type)["ignore_keep_same_record_conditions"]
     end
 
     def cleanup_tables
@@ -84,8 +84,8 @@ module DumpCleaner
         @cleanup_table_config["record_context_columns"] || ["id"]
       end
 
-      def keep_same_conditions
-        @cleanup_table_config["keep_same_conditions"]
+      def keep_same_record_conditions
+        @cleanup_table_config["keep_same_record_conditions"]
       end
     end
   end
