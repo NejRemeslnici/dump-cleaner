@@ -8,7 +8,7 @@ module DumpCleaner
           regex = Regexp.new("\\A#{format}\\z")
 
           unless current_value.match?(regex)
-            # warn "ID: #{record['id']} invalid formatted number: #{current_value}"
+            Log.warn { "Invalid formatted number: id: #{record['id']}, value: #{current_value}" } if repetition.zero?
             step_context.current_value = nil
             return step_context
           end

@@ -21,7 +21,7 @@ module DumpCleaner
 
       def clean
         table_config = config.cleanup_table_config(db: @db, table: @table)
-        puts "Cleaning table #{@table_info.db_dot_table}…"
+        Log.info { "Cleaning table #{@table_info.db_dot_table}…" }
 
         DumpCleaner::Cleanup::Uniqueness::Ensurer.instance.clear
 
@@ -35,8 +35,6 @@ module DumpCleaner
             end
           end
         end
-
-        puts
       end
 
       private
@@ -88,10 +86,12 @@ module DumpCleaner
       def warn_on_changed_line_length(orig_line, new_line, id:, record:)
         return if orig_line.bytes.length == new_line.bytes.length
 
-        warn "ID: #{id} bytes length changed: #{orig_line.bytes.length} => #{new_line.bytes.length}"
+        warning = "ID: #{id} bytes length changed: #{orig_line.bytes.length} => #{new_line.bytes.length}"
         orig_line.split("\t").each_with_index do |column, i|
-          warn "#{column} -> #{record[i]}" if !record[i] || column.bytes.length != record[i].bytes.length
+          warning << "#{column} -> #{record[i]}" if !record[i] || column.bytes.length != record[i].bytes.length
         end
+
+        Log.warn { warning }
       end
 
       class DumpTableInfo

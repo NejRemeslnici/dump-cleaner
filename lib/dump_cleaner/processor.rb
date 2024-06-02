@@ -18,13 +18,14 @@ module DumpCleaner
                         raise "Unsupported dump format #{config.dump_format}"
                       end
 
+      Log.debug { "Starting cleanup with #{cleaner_class}…" }
       cleaner = cleaner_class.new(config:, options:)
       cleaner.pre_cleanup
       cleaner.clean
       cleaner.post_cleanup
 
       diff = Time.now - start_time
-      puts "Finished in #{diff.div(60)}m #{(diff % 60).to_i}s."
+      Log.debug { "Finished in #{diff.div(60)}m #{(diff % 60).to_i}s." }
     end
 
     private

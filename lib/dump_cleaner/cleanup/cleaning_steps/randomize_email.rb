@@ -8,7 +8,7 @@ module DumpCleaner
           mailbox, domain = current_value.split("@", 2)
 
           if !mailbox || !domain || mailbox.empty? || domain.empty? || !domain.include?(".")
-            # warn "ID: #{record['id']} invalid email #{current_value}" if repetition.zero?
+            Log.warn { "Invalid email: id: #{record['id']}, value: #{current_value}" } if repetition.zero?
             step_context.current_value = nil
             return step_context
           end

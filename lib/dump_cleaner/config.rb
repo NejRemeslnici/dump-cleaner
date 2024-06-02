@@ -13,6 +13,7 @@ module DumpCleaner
     def initialize(config_file)
       @config = load(config_file)
       @steps_for = {}
+      set_log_level
     end
 
     def dump_format
@@ -46,6 +47,10 @@ module DumpCleaner
 
     def load(config_file)
       YAML.load_file(config_file)
+    end
+
+    def set_log_level
+      Log.instance.level = @config.dig("dump_cleaner", "log_level") || "info"
     end
 
     def cleanup_table_configs

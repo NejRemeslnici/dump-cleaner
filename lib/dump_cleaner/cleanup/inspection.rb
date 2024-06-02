@@ -6,8 +6,8 @@ module DumpCleaner
       private
 
       def inspect_step_context(step_context, message: "Inspecting step context", values: 10)
-        puts "#{message} (first #{values} values):"
-        pp step_context
+        Log.debug { "#{message} (first #{values} values):" }
+        Log.debug { "\n#{step_context.pretty_inspect}" }
       end
 
       def subset(data, values: 10)
