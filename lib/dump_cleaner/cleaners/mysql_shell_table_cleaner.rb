@@ -48,18 +48,20 @@ module DumpCleaner
 
         keep_record = keep_record?(record_context, table_config:)
 
-        table_config.columns.each do |column|
-          column_index = @table_info.column_index(column.name)
-          raise "Invalid column specified in config: #{column.name}" unless column_index
+        table_config.columns.each do |column_config|
+          column_index = @table_info.column_index(column_config.name)
+          raise "Invalid column specified in config: #{column_config.name}" unless column_index
 
           next if record[column_index] == "\\N" # ignore NULL values
 
+          cleanup_data = @cleanup_data.data_for(column_config.cleanup_type)
+
           record[column_index] = @cleaning.clean_value_for(record[column_index],
-                                                           type: column.cleanup_type,
-                                                           cleanup_data: @cleanup_data.data_for(column.cleanup_type),
+                                                           type: column_config.cleanup_type,
+                                                           cleanup_data:,
                                                            record: record_context,
                                                            keep_record:,
-                                                           column:)
+                                                           column_config:)
         end
 
         new_line = record.join("\t")

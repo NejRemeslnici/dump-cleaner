@@ -12,14 +12,14 @@ module DumpCleaner
         @workflow = Workflow.new(namespace: DumpCleaner::Cleanup::CleaningSteps)
       end
 
-      def clean_value_for(orig_value, type:, cleanup_data:, column:, record: {}, keep_record: false)
+      def clean_value_for(orig_value, type:, cleanup_data:, column_config:, record: {}, keep_record: false)
         keep_value = (keep_record && !config.ignore_record_keep_same_conditions?(type)) ||
                      ((conditions = config.keep_same_conditions(type)) &&
                       Conditions.new(conditions).evaluate_to_true?(record, column_value: orig_value))
 
         step_context = StepContext.new(orig_value:, type:, cleanup_data:, record:)
 
-        if column.unique?
+        if column_config.unique_column?
           begin
             repeat_until_unique(step_context:) do |repetition|
               step_context.repetition = repetition

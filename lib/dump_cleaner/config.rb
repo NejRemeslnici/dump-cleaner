@@ -5,7 +5,7 @@ module DumpCleaner
     require "yaml"
 
     CleanupTableColumnConfig = Data.define(:name, :cleanup_type, :unique) do
-      alias_method :unique?, :unique
+      alias_method :unique_column?, :unique
     end
 
     CleanupStepConfig = Data.define(:step, :params)
