@@ -84,11 +84,11 @@ module DumpCleaner
       end
 
       def warn_on_changed_line_length(orig_line, new_line, id:, record:)
-        return if orig_line.bytes.length == new_line.bytes.length
+        return if orig_line.bytesize == new_line.bytesize
 
-        warning = "ID: #{id} bytes length changed: #{orig_line.bytes.length} => #{new_line.bytes.length}"
+        warning = "ID: #{id} bytes length changed: #{orig_line.bytesize} => #{new_line.bytesize}"
         orig_line.split("\t").each_with_index do |column, i|
-          warning << "#{column} -> #{record[i]}" if !record[i] || column.bytes.length != record[i].bytes.length
+          warning << "#{column} -> #{record[i]}" if !record[i] || column.bytesize != record[i].bytesize
         end
 
         Log.warn { warning }
