@@ -3,8 +3,8 @@
 module DumpCleaner
   module Cleanup
     class Workflow
-      def initialize(namespace:)
-        @namespace = namespace
+      def initialize(phase:)
+        @phase = phase
         @workflow_steps_cache = {}
       end
 
@@ -16,16 +16,20 @@ module DumpCleaner
 
       private
 
+      def steps_namespace(phase)
+        phase == :data_source ? DumpCleaner::Cleanup::DataSourceSteps : DumpCleaner::Cleanup::CleaningSteps
+      end
+
       def steps(type:, step_configs:)
         @workflow_steps_cache[cache_key(type:, step_configs:)] ||= step_configs.map do |step_config|
           lambda do |step_context|
-            @namespace.const_get(step_config.step).new(step_context).run(**step_config.params)
+            steps_namespace(@phase).const_get(step_config.step).new(step_context).run(**step_config.params)
           end
         end
       end
 
       def cache_key(type:, step_configs:)
-        "#{@namespace}-#{type}-#{step_configs.map(&:step).join('-')}"
+        "#{@phase}-#{type}-#{step_configs.map(&:step).join('-')}"
       end
     end
   end

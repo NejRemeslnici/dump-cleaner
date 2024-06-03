@@ -18,7 +18,7 @@ RSpec.describe DumpCleaner::Cleanup::CleaningSteps::RandomizeFormattedNumber do
     it "raises error if format has no named group 'x'" do
       step_context = step_context(orig_value: "1")
       expect { cleaner(step_context).run(format: '(?<some>\d)') }
-        .to raise_error(ArgumentError, /named group starting with "x"/)
+        .to raise_error(ArgumentError, /named group starting with 'x'/)
     end
 
     it "raises error if named groups in the format do not match the whole value" do

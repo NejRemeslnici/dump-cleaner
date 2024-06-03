@@ -10,7 +10,7 @@ module DumpCleaner
           regex = Regexp.new("\\A#{format}\\z")
 
           unless regex.names.any? { _1.start_with?("x") }
-            raise ArgumentError, 'The format has no named group starting with \'x\', e.g. \'(?<x>\d)\')'
+            raise_params_error('The format has no named group starting with \'x\', e.g. \'(?<x>\d)\')')
           end
 
           unless current_value.match?(regex)

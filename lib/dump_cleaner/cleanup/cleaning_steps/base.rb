@@ -22,6 +22,10 @@ module DumpCleaner
           value_to_hash += "-#{repetition}" if use_repetition
           Zlib.crc32(value_to_hash)
         end
+
+        def raise_params_error(error)
+          raise ArgumentError, "Invalid step params: type=#{type}, step=#{self.class.name.split('::').last}: #{error}"
+        end
       end
     end
   end

@@ -8,8 +8,9 @@ module DumpCleaner
       attr_reader :config
 
       def initialize(config:)
+        @cleaning_workflow = Workflow.new(phase: :cleaning)
+        @failure_workflow = Workflow.new(phase: :failure)
         @config = config
-        @workflow = Workflow.new(namespace: DumpCleaner::Cleanup::CleaningSteps)
       end
 
       def clean_value_for(orig_value, type:, cleanup_data:, column_config:, record: {}, keep_record: false)
@@ -56,12 +57,12 @@ module DumpCleaner
       end
 
       def run_cleaning_workflow(step_context)
-        @workflow.run(step_context, step_configs: config.steps_for(step_context.type, :cleaning)).current_value
+        @cleaning_workflow.run(step_context, step_configs: config.steps_for(step_context.type, :cleaning)).current_value
       end
 
       def run_failure_workflow(step_context)
         step_context.current_value = step_context.orig_value # reset current_value
-        @workflow.run(step_context, step_configs: config.steps_for(step_context.type, :failure)).current_value
+        @failure_workflow.run(step_context, step_configs: config.steps_for(step_context.type, :failure)).current_value
       end
     end
   end
