@@ -45,7 +45,7 @@ module DumpCleaner
         if column_config.unique_column?
           repeat_until_unique(step_context:) do |repetition|
             step_context.repetition = repetition
-            DumpCleaner::Cleanup::CleaningSteps::RepetitionSuffix.new(step_context).run.current_value
+            DumpCleaner::Cleanup::CleaningSteps::AddRepetitionSuffix.new(step_context).run.current_value
           end
         else
           step_context.orig_value

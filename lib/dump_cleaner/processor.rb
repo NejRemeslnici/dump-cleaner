@@ -25,7 +25,7 @@ module DumpCleaner
       cleaner.post_cleanup
 
       diff = Time.now - start_time
-      Log.debug { "Finished in #{diff.div(60)}m #{(diff % 60).to_i}s." }
+      Log.info { "Finished in #{diff.div(60)}m #{(diff % 60).to_i}s." }
     end
 
     private
