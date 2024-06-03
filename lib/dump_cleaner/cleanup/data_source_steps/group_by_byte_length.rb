@@ -5,7 +5,7 @@ module DumpCleaner
     module DataSourceSteps
       class GroupByByteLength < Base
         def run(under_keys: [])
-          group_by_lambda = -> { "#{_1.length}-#{_1.bytes.length}" }
+          group_by_lambda = -> { "#{_1.length}-#{_1.bytesize}" }
 
           step_context.cleanup_data = begin
             if under_keys.any?
