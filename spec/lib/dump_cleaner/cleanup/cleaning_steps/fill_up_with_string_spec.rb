@@ -26,9 +26,14 @@ RSpec.describe DumpCleaner::Cleanup::CleaningSteps::FillUpWithString do
         expect(cleaner(step_context).run(string: "efghij").current_value).to eq("efg")
       end
 
-      it "returns the string repeated if too short" do
+      it "returns the string repeated (separated by spaces) if too short" do
         step_context = step_context(orig_value: "abcdefg")
         expect(cleaner(step_context).run(string: "xyz").current_value).to eq("xyz xyz")
+      end
+
+      it "returns the string repeated (separated by custom padding) if too short" do
+        step_context = step_context(orig_value: "abcdefg")
+        expect(cleaner(step_context).run(string: "xyz", padding: "-").current_value).to eq("xyz-xyz")
       end
     end
 
@@ -43,9 +48,15 @@ RSpec.describe DumpCleaner::Cleanup::CleaningSteps::FillUpWithString do
         expect(cleaner(step_context).run.current_value).to eq("ano")
       end
 
-      it "returns the 'anonymized type' string repeated if too short" do
+      it "returns the 'anonymized type' string repeated (separated by spaces) if too short" do
         step_context = step_context(orig_value: "some very long string and still even longer")
         expect(cleaner(step_context).run.current_value).to eq("anonymized some_type anonymized some_type a")
+      end
+
+      it "returns the 'anonymized type' string repeated (separated by custom padding) if too short" do
+        step_context = step_context(orig_value: "some very long string and still even longer")
+        expect(cleaner(step_context).run(padding: "-").current_value)
+          .to eq("anonymized some_type-anonymized some_type-a")
       end
     end
 
