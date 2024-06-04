@@ -14,6 +14,11 @@ module DumpCleaner
         string
       end
 
+      def set_to_bytesize(string, bytesize:, padding: " ")
+        string = string.ljust(bytesize, "#{padding}#{string}") if string.bytesize < bytesize
+        truncate_to_bytesize(string, max_bytesize: bytesize, padding:)
+      end
+
       def replace_suffix(string, suffix:, padding: " ")
         front_max_bytes = string.bytesize - suffix.bytesize
         front = truncate_to_bytesize(string, max_bytesize: front_max_bytes, padding:)
