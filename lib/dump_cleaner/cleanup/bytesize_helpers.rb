@@ -10,6 +10,11 @@ module DumpCleaner
       end
 
       def replace_suffix(string, suffix:, padding: " ")
+        if padding.bytesize > 1
+          raise ArgumentError,
+                "Don't use multi-byte characters in the padding, it may prevent adjusting the result precisely."
+        end
+
         front_max_bytes = string.bytesize - suffix.bytesize
 
         front = truncate_to_bytes(string, max_bytes: front_max_bytes)

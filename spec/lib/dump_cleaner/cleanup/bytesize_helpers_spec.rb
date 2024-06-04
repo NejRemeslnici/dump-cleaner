@@ -13,11 +13,11 @@ RSpec.describe DumpCleaner::Cleanup::BytesizeHelpers do
     end
 
     it "truncates a multibyte string to the max_bytes" do
-      expect(dummy.truncate_to_bytes("ěščř", max_bytes: 4)).to eq("ěš")
+      expect(dummy.truncate_to_bytes("αβγπ", max_bytes: 4)).to eq("αβ")
     end
 
     it "truncates a multibyte string to less than max_bytes if that would produce invalid UTF character" do
-      expect(dummy.truncate_to_bytes("ěščř", max_bytes: 5)).to eq("ěš")
+      expect(dummy.truncate_to_bytes("αβγπ", max_bytes: 5)).to eq("αβ")
       expect(dummy.truncate_to_bytes("€", max_bytes: 2)).to eq("")
     end
   end
@@ -28,16 +28,20 @@ RSpec.describe DumpCleaner::Cleanup::BytesizeHelpers do
     end
 
     it "replaces the end of the string by the given suffix (multibyte strings)" do
-      expect(dummy.replace_suffix("ěšč", suffix: "ř")).to eq("ěšř")
-      expect(dummy.replace_suffix("ěšč", suffix: "ř").bytesize).to eq("ěšč".bytesize)
+      expect(dummy.replace_suffix("αβγ", suffix: "π")).to eq("αβπ")
+      expect(dummy.replace_suffix("αβγ", suffix: "π").bytesize).to eq("αβγ".bytesize)
     end
 
     it "pads the suffix by the given padding if needed (if we split a multibyte character)" do
-      expect(dummy.replace_suffix("ěšč", suffix: "1", padding: "0")).to eq("ěš01")
-      expect(dummy.replace_suffix("ěšč", suffix: "1", padding: "0").bytesize).to eq("ěšč".bytesize)
+      expect(dummy.replace_suffix("αβγ", suffix: "1", padding: "0")).to eq("αβ01")
+      expect(dummy.replace_suffix("αβγ", suffix: "1", padding: "0").bytesize).to eq("αβγ".bytesize)
 
       expect(dummy.replace_suffix("cost 12€", suffix: "1", padding: "0")).to eq("cost 12001")
       expect(dummy.replace_suffix("cost 12€", suffix: "1", padding: "0").bytesize).to eq("cost 12€".bytesize)
+    end
+
+    it "raises an error if the padding is a multibyte character" do
+      expect { dummy.replace_suffix("12€", suffix: "10", padding: "π") }.to raise_error(ArgumentError, /multi-byte/)
     end
   end
 end
