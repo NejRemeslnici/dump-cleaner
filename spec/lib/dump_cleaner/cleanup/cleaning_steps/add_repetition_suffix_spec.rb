@@ -10,9 +10,9 @@ RSpec.describe DumpCleaner::Cleanup::CleaningSteps::AddRepetitionSuffix do
   end
 
   describe "#run" do
-    it "returns the step_context" do
+    it "returns a step_context" do
       step_context = step_context(orig_value: "abc")
-      expect(cleaner(step_context).run).to eq(step_context)
+      expect(cleaner(step_context).run).to be_a(DumpCleaner::Cleanup::StepContext)
     end
 
     it "returns the current_value number as a string" do
