@@ -3,22 +3,28 @@ require "spec_helper"
 RSpec.describe DumpCleaner::Cleanup::BytesizeHelpers do
   let(:dummy) { Class.new { include DumpCleaner::Cleanup::BytesizeHelpers }.new }
 
-  describe "#truncate_to_bytes" do
-    it "returns the string if it is shorter than the max_bytes" do
-      expect(dummy.truncate_to_bytes("abc", max_bytes: 4)).to eq("abc")
+  describe "#truncate_to_bytesize" do
+    it "returns the string if it is shorter than the max_bytesize" do
+      expect(dummy.truncate_to_bytesize("abc", max_bytesize: 4)).to eq("abc")
     end
 
-    it "truncates the string to the max_bytes" do
-      expect(dummy.truncate_to_bytes("abcd", max_bytes: 2)).to eq("ab")
+    it "truncates the string to the max_bytesize" do
+      expect(dummy.truncate_to_bytesize("abcd", max_bytesize: 2)).to eq("ab")
     end
 
-    it "truncates a multibyte string to the max_bytes" do
-      expect(dummy.truncate_to_bytes("αβγπ", max_bytes: 4)).to eq("αβ")
+    it "truncates a multibyte string to the max_bytesize" do
+      expect(dummy.truncate_to_bytesize("αβγπ", max_bytesize: 4)).to eq("αβ")
     end
 
-    it "truncates a multibyte string to less than max_bytes if that would produce invalid UTF character" do
-      expect(dummy.truncate_to_bytes("αβγπ", max_bytes: 5)).to eq("αβ")
-      expect(dummy.truncate_to_bytes("€", max_bytes: 2)).to eq("")
+    it "adjusts a multibyte string with padding if needed" do
+      expect(dummy.truncate_to_bytesize("αβγπ", max_bytesize: 5)).to eq("αβ ")
+      expect(dummy.truncate_to_bytesize("€", max_bytesize: 2, padding: "E")).to eq("EE")
+    end
+
+    it "raises an error if the padding is a multibyte character" do
+      expect do
+        dummy.truncate_to_bytesize("αβγπ", max_bytesize: 4, padding: "π")
+      end.to raise_error(ArgumentError, /single-byte/)
     end
   end
 
@@ -41,7 +47,7 @@ RSpec.describe DumpCleaner::Cleanup::BytesizeHelpers do
     end
 
     it "raises an error if the padding is a multibyte character" do
-      expect { dummy.replace_suffix("12€", suffix: "10", padding: "π") }.to raise_error(ArgumentError, /multi-byte/)
+      expect { dummy.replace_suffix("12€", suffix: "10", padding: "π") }.to raise_error(ArgumentError, /single-byte/)
     end
   end
 end
