@@ -12,7 +12,7 @@ module DumpCleaner
                                        elsif current_value.bytesize > repetition.to_s.bytesize
                                          replace_suffix(current_value, suffix: repetition.to_s, padding: "0")
                                        else
-                                         SameLengthRandomString.new(StepContext.new_from(step_context))
+                                         GenerateRandomString.new(StepContext.new_from(step_context))
                                                                .run.current_value
                                        end
           step_context
