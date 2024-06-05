@@ -16,8 +16,8 @@ module DumpCleaner
 
           if n.positive?
             Log.debug do
-              msg = "Uniqueness run: ID: #{step_context.record['id']}, type: #{step_context.type}, "
-              msg << "orig: #{step_context.orig_value}, current: #{result}, repetition: #{n}"
+              msg = "Uniqueness run:  type=#{step_context.type}, id=#{step_context.record['id']}, "
+              msg << "orig_value=#{step_context.orig_value}, current_value=#{result}, repetition=#{n}"
             end
           end
 
