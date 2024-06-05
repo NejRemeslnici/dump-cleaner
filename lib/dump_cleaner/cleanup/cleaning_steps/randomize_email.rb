@@ -35,7 +35,7 @@ module DumpCleaner
         def czech_word_instead_of(word)
           context = StepContext.new_from(step_context, current_value: word, cleanup_data: cleanup_data["czech_words"])
           context = SelectByteLengthGroup.new(context).run
-          DeterministicSample.new(context).run(uniqueness_strategy: :suffix).current_value
+          TakeSample.new(context).run(uniqueness_strategy: :suffix).current_value
         end
 
         def random_word_instead_of(word)
