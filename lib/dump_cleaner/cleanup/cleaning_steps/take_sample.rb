@@ -5,7 +5,10 @@ module DumpCleaner
     module CleaningSteps
       class TakeSample < Base
         def run(uniqueness_strategy: :resample)
-          return step_context if !cleanup_data || cleanup_data.empty?
+          if !cleanup_data || cleanup_data.empty?
+            step_context.current_value = nil
+            return step_context
+          end
 
           uniqueness_strategy = uniqueness_strategy.to_sym
           step_context.current_value =

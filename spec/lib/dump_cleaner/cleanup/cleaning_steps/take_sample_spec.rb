@@ -13,11 +13,10 @@ RSpec.describe DumpCleaner::Cleanup::CleaningSteps::TakeSample do
   end
 
   describe "#run" do
-    it "returns the step_context without changing current_value when data is empty" do
+    it "returns the step_context with nil current_value when data is empty" do
       step_context = step_context(orig_value: "1", cleanup_data: [])
       result = cleaner(step_context).run
-      expect(result).to eq(step_context)
-      expect(result.current_value).to eq("1")
+      expect(result.current_value).to be_nil
     end
 
     it "returns the step_context when data is present" do
