@@ -32,7 +32,7 @@ RSpec.describe DumpCleaner::Cleanup::CleaningSteps::AddRepetitionSuffix do
     end
 
     it "replaces the value end with a (deterministic) random string if string is smaller than repetition suffix" do
-      expect(cleaner(step_context(orig_value: "abc", repetition: 1234)).run.current_value).to eq("rax")
+      expect(cleaner(step_context(orig_value: "abc", repetition: 1234)).run.current_value).to eq("6j9")
     end
   end
 end

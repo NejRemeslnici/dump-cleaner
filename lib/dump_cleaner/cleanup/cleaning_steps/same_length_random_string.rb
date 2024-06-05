@@ -7,7 +7,7 @@ module DumpCleaner
         require "random/formatter"
 
         def run
-          random = Random.new(crc32(current_value:, record:))
+          random = Random.new(crc32)
 
           step_context.current_value = random.alphanumeric(current_value.bytesize).downcase
           step_context

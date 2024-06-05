@@ -17,9 +17,9 @@ module DumpCleaner
           @step_context = step_context
         end
 
-        def crc32(current_value:, record:, use_repetition: true)
+        def crc32(use_repetition: true)
           value_to_hash = "#{record['id_column']}-#{current_value}"
-          value_to_hash += "-#{repetition}" if use_repetition
+          value_to_hash += "-#{repetition}" if repetition.positive? && use_repetition
           Zlib.crc32(value_to_hash)
         end
 

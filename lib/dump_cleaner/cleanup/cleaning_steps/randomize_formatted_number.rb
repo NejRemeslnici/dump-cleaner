@@ -21,7 +21,7 @@ module DumpCleaner
             return step_context
           end
 
-          random = Random.new(crc32(current_value:, record:))
+          random = Random.new(crc32)
           new_value = randomize_named_captures(regex:, random:)
 
           if new_value.length != current_value.length

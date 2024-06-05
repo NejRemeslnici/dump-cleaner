@@ -5,7 +5,7 @@ module DumpCleaner
     module CleaningSteps
       class RandomizeNumber < Base
         def run(difference_within: 1.0)
-          random = Random.new(crc32(current_value:, record:))
+          random = Random.new(crc32)
 
           new_value = current_value.to_f + random.rand(difference_within.to_f * 2) - difference_within.to_f
 

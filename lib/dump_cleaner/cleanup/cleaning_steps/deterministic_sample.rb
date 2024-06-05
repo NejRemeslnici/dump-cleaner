@@ -10,13 +10,12 @@ module DumpCleaner
           uniqueness_strategy = uniqueness_strategy.to_sym
           step_context.current_value =
             if uniqueness_strategy == :suffix
-              sample = cleanup_data[crc32(current_value:, record:,
-                                          use_repetition: false) % cleanup_data.size]
+              sample = cleanup_data[crc32(use_repetition: false) % cleanup_data.size]
               AddRepetitionSuffix.new(StepContext.new_from(step_context, current_value: sample)).run.current_value
             elsif uniqueness_strategy == :resample
-              cleanup_data[crc32(current_value:, record:) % cleanup_data.size]
+              cleanup_data[crc32 % cleanup_data.size]
             else
-              raise ArgumentError, "Unknown uniqueness strategy: #{uniqueness_strategy}"
+              raise_params_error("Unknown uniqueness strategy: #{uniqueness_strategy}")
             end
           step_context
         end
