@@ -2,12 +2,12 @@
 
 module DumpCleaner
   module Cleanup
-    module CleaningSteps
-      class Inspect < Base
+    module DataSourceSteps
+      class InspectContext < Base
         include Inspection
 
-        def run(values: 10)
-          inspect_step_context(step_context, values:)
+        def run
+          inspect_step_context(step_context)
           step_context
         end
       end

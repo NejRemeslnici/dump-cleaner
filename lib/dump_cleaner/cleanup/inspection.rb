@@ -5,8 +5,8 @@ module DumpCleaner
     module Inspection
       private
 
-      def inspect_step_context(step_context, message: "Inspecting step context", values: 10)
-        Log.debug { "#{message} (first #{values} values):" }
+      def inspect_step_context(step_context, message: "Inspecting step context")
+        Log.debug { message }
         Log.debug { "\n#{step_context.pretty_inspect}" }
       end
 
