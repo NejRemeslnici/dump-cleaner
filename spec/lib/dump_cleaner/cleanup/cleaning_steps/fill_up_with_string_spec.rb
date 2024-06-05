@@ -3,7 +3,7 @@
 require "spec_helper"
 
 RSpec.describe DumpCleaner::Cleanup::CleaningSteps::FillUpWithString do
-  def step_context(orig_value:, record: { "id_value" => "123" }, type: "some_type", cleanup_data: [], repetition: 0)
+  def step_context(orig_value:, record: { "id_column" => "123" }, type: "some_type", cleanup_data: [], repetition: 0)
     DumpCleaner::Cleanup::StepContext.new(orig_value:, record:, type:, cleanup_data:, repetition:)
   end
 

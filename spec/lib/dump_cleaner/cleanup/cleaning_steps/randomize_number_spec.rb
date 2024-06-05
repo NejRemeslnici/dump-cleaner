@@ -3,7 +3,7 @@
 require "spec_helper"
 
 RSpec.describe DumpCleaner::Cleanup::CleaningSteps::RandomizeNumber do
-  def step_context(orig_value:, record: { "id_value" => "123" }, type: "some_type", cleanup_data: [])
+  def step_context(orig_value:, record: { "id_column" => "123" }, type: "some_type", cleanup_data: [])
     DumpCleaner::Cleanup::StepContext.new(orig_value:, record:, type:, cleanup_data:)
   end
 
