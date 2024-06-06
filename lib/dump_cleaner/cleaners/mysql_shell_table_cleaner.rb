@@ -91,7 +91,7 @@ module DumpCleaner
           warning << "#{column} -> #{record[i]}" if !record[i] || column.bytesize != record[i].bytesize
         end
 
-        Log.warn { warning }
+        Log.error { warning }
       end
 
       class DumpTableInfo
