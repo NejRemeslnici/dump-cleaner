@@ -29,9 +29,17 @@ module DumpCleaner
         new_context
       end
 
-      def pretty_print(pp)
+      def to_h(subset: false)
         { orig_value:, current_value:, type:, record:, repetition:,
-          cleanup_data: subset(cleanup_data) }.pretty_print(pp)
+          cleanup_data: subset ? subset(cleanup_data) : cleanup_data }
+      end
+
+      def pretty_print(pp)
+        to_h(subset: true).pretty_print(pp)
+      end
+
+      def ==(other)
+        to_h <=> other.to_h
       end
     end
   end

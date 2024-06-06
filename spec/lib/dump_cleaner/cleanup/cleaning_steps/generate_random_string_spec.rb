@@ -50,7 +50,7 @@ RSpec.describe DumpCleaner::Cleanup::CleaningSteps::GenerateRandomString do
     it "returns a random (deterministic) string from the defined custom character set" do
       step_context = step_context(orig_value: "abcdef")
       expect(cleaner(step_context).run(character_set: [*"a".."z"]).current_value).to eq("ktzfne")
-      expect(cleaner(step_context).run(character_set: [*"a".."z", *"Č".."ě"]).current_value).to eq("qiĒlyo")
+      expect(cleaner(step_context).run(character_set: [*"a".."z", *"Č".."Ň"]).current_value).to eq("mČtņyĎ")
     end
   end
 end

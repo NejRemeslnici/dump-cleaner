@@ -14,7 +14,7 @@ module DumpCleaner
         attr_reader :step_context
 
         def initialize(step_context)
-          @step_context = step_context
+          @step_context = step_context.dup
         end
 
         def raise_params_error(error)

@@ -12,9 +12,9 @@ RSpec.describe DumpCleaner::Cleanup::CleaningSteps::RandomizeNumber do
   end
 
   describe "#run" do
-    it "returns the step_context" do
+    it "returns a step_context" do
       step_context = step_context(orig_value: "1")
-      expect(cleaner(step_context).run).to eq(step_context)
+      expect(cleaner(step_context).run).to be_a(DumpCleaner::Cleanup::StepContext)
     end
 
     it "returns the current_value number as a string" do

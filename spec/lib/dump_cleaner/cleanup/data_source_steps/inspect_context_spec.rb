@@ -20,16 +20,17 @@ RSpec.describe DumpCleaner::Cleanup::DataSourceSteps::InspectContext do
     end
 
     it "logs the step context and calls its pretty print" do
-      allow(step_context).to receive(:pretty_inspect).and_call_original
+      cleaner = cleaner(step_context)
 
       block = lambda do
         log.level = :debug
         log.reopen($stdout)
-        cleaner(step_context).run
+        allow(cleaner.step_context).to receive(:pretty_print).and_call_original
+        cleaner.run
       end
 
       expect(&block).to output(/Inspecting step context/).to_stdout
-      expect(step_context).to have_received(:pretty_inspect)
+      expect(cleaner.step_context).to have_received(:pretty_print)
     end
   end
 end
