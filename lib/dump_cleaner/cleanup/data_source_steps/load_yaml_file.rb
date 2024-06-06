@@ -4,6 +4,8 @@ module DumpCleaner
   module Cleanup
     module DataSourceSteps
       class LoadYamlFile < Base
+        require "yaml"
+
         def run(file:, under_key: nil)
           loaded_data = YAML.load_file(file)
 

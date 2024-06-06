@@ -5,9 +5,8 @@ require "spec_helper"
 RSpec.describe DumpCleaner::Cleanup::DataSourceSteps::GroupByBytesize do
   let(:log) { DumpCleaner::Log.instance }
 
-  def step_context(orig_value: "abc", record: { "id_column" => "123" }, type: "some_type",
-                   cleanup_data: %w[a b cc dd eee fff yellowish žluťoučký], repetition: 0)
-    DumpCleaner::Cleanup::StepContext.new(orig_value:, record:, type:, cleanup_data:, repetition:)
+  def step_context(type: "some_type", cleanup_data: %w[a b cc dd eee fff yellowish žluťoučký])
+    DumpCleaner::Cleanup::StepContext.new(type:, cleanup_data:)
   end
 
   def cleaner(step_context)
