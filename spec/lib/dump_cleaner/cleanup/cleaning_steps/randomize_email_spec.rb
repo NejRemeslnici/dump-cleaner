@@ -33,13 +33,13 @@ RSpec.describe DumpCleaner::Cleanup::CleaningSteps::RandomizeEmail do
     end
 
     it "returns mail with (deterministically) generated random mailbox if not found in dictionary" do
-      expect(cleaner(step_context(orig_value: "foo@liberal.cz")).run.current_value).to eq("7Lr@context.cz")
-      expect(cleaner(step_context(orig_value: "foo@liberal.cz")).run.current_value).to eq("7Lr@context.cz")
+      expect(cleaner(step_context(orig_value: "foo@liberal.cz")).run.current_value).to eq("hvg@context.cz")
+      expect(cleaner(step_context(orig_value: "foo@liberal.cz")).run.current_value).to eq("hvg@context.cz")
     end
 
     it "returns mail with (deterministically) generated random mailbox and domain if not found in dictionary" do
-      expect(cleaner(step_context(orig_value: "foo@bar.cz")).run.current_value).to eq("7Lr@YJF.cz")
-      expect(cleaner(step_context(orig_value: "foo@bar.cz")).run.current_value).to eq("7Lr@YJF.cz")
+      expect(cleaner(step_context(orig_value: "foo@bar.cz")).run.current_value).to eq("hvg@sgb.cz")
+      expect(cleaner(step_context(orig_value: "foo@bar.cz")).run.current_value).to eq("hvg@sgb.cz")
     end
   end
 end

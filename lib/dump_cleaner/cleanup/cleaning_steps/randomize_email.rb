@@ -44,7 +44,8 @@ module DumpCleaner
         end
 
         def random_word_instead_of(word)
-          GenerateRandomString.new(StepContext.new_from(step_context, current_value: word)).run.current_value
+          GenerateRandomString.new(StepContext.new_from(step_context, current_value: word))
+                              .run(character_set: :lowercase).current_value
         end
       end
     end
