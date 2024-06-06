@@ -39,7 +39,7 @@ module DumpCleaner
       end
 
       def ==(other)
-        to_h <=> other.to_h
+        to_h == other.to_h
       end
     end
   end

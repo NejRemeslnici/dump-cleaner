@@ -6,9 +6,27 @@ RSpec.describe DumpCleaner::Cleanup::StepContext do
     DumpCleaner::Cleanup::StepContext.new(orig_value:, record:, type:, cleanup_data:, repetition:)
   end
 
+  describe "#to_h" do
+    it "returns the step context as a hash" do
+      expect(step_context.to_h).to eq(orig_value: "abc", current_value: "abc", type: "some_type",
+                                      record: { "id_column" => "123" }, repetition: 0,
+                                      cleanup_data: %w[a b c d e f g])
+    end
+  end
+
+  describe "#==" do
+    it "returns true if the other step_context has the same values" do
+      expect(step_context.==(step_context.dup)).to be true
+    end
+
+    it "returns true if the other step_context differs in its values" do
+      expect(step_context.==(step_context(repetition: 1))).to be false
+      expect(step_context.==(step_context(cleanup_data: %w[a b c d e f g h]))).to be false
+    end
+  end
+
   describe "#pretty_print" do
     it "returns a pretty-formatted step context state to use in pretty_inspect and pp" do
-      step_context = step_context()
       output = step_context.pretty_inspect
       expect(output).to include(':orig_value=>"abc"')
       expect(output).to include(':current_value=>"abc"')
