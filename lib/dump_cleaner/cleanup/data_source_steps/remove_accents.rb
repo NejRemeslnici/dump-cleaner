@@ -5,7 +5,9 @@ module DumpCleaner
     module DataSourceSteps
       class RemoveAccents < Base
         def run(under_keys: [])
-          block = -> { _1.unicode_normalize(:nfd).gsub(/\p{M}/, "") }
+          block = lambda do |word|
+            word.match?(/^\p{ASCII}+$/) ? word : word.unicode_normalize(:nfd).gsub(/\p{M}/, "")
+          end
 
           step_context.cleanup_data = begin
             if under_keys.any?
