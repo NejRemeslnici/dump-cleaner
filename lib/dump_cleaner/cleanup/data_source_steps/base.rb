@@ -5,7 +5,6 @@ module DumpCleaner
     module DataSourceSteps
       class Base
         require "forwardable"
-        require "zlib"
 
         extend Forwardable
 
