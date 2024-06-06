@@ -26,7 +26,11 @@ module DumpCleaner
         private
 
         def new_mailbox(mailbox, words:)
-          mailbox.split(".").map { dictionary_or_random_word_instead_of(_1, words:) }.join(".")
+          if mailbox !~ /^\.|\.\.|\.$/
+            mailbox.split(".").map { dictionary_or_random_word_instead_of(_1, words:) }.join(".")
+          else
+            dictionary_or_random_word_instead_of(mailbox, words:)
+          end
         end
 
         def new_domain(domain, domains:, words:)

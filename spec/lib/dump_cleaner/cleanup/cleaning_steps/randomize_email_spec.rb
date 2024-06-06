@@ -53,6 +53,12 @@ RSpec.describe DumpCleaner::Cleanup::CleaningSteps::RandomizeEmail do
         .to eq("hvg.sgb@kgi.cz")
     end
 
+    it "ignores dots in mailbox if they are invalid" do
+      expect(cleaner(step_context(orig_value: ".foo@gmail.com")).run.current_value).to eq("jhbi@gmail.com")
+      expect(cleaner(step_context(orig_value: "foo.@gmail.com")).run.current_value).to eq("mcmy@gmail.com")
+      expect(cleaner(step_context(orig_value: "fo..o@gmail.com")).run.current_value).to eq("cqcxu@gmail.com")
+    end
+
     it "allows specifying custom dictionary data keys" do
       step_context = step_context(orig_value: "someone.dustful@gmail.com",
                                   cleanup_data: { "domains" => %w[gmail.com],
