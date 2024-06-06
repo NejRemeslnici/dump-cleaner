@@ -3,7 +3,7 @@
 module DumpCleaner
   module Cleanup
     module CleaningSteps
-      class SelectBytesizeGroup < Base
+      class SelectDataByBytesize < Base
         def run
           return step_context if !cleanup_data || cleanup_data.empty?
 

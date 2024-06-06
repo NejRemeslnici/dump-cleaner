@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe DumpCleaner::Cleanup::CleaningSteps::SelectBytesizeGroup do
+RSpec.describe DumpCleaner::Cleanup::CleaningSteps::SelectDataByBytesize do
   def step_context(orig_value:, record: { "id_column" => "123" }, type: "some_type", repetition: 0,
                    cleanup_data: { "1-1" => %w[a b],
                                    "2-2" => %w[cc dd],

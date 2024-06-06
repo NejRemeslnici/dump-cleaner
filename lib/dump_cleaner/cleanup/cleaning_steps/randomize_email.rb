@@ -49,7 +49,7 @@ module DumpCleaner
 
         def dictionary_word_instead_of(word, words:)
           context = StepContext.new_from(step_context, current_value: word, cleanup_data: words)
-          context = SelectBytesizeGroup.new(context).run
+          context = SelectDataByBytesize.new(context).run
           TakeSample.new(context).run(uniqueness_strategy: :suffix).current_value
         end
 
