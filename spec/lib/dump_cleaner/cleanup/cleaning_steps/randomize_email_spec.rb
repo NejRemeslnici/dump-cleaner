@@ -41,5 +41,16 @@ RSpec.describe DumpCleaner::Cleanup::CleaningSteps::RandomizeEmail do
       expect(cleaner(step_context(orig_value: "foo@bar.cz")).run.current_value).to eq("hvg@sgb.cz")
       expect(cleaner(step_context(orig_value: "foo@bar.cz")).run.current_value).to eq("hvg@sgb.cz")
     end
+
+    it "keeps dots in mailbox and randomizes the parts separately" do
+      expect(cleaner(step_context(orig_value: "someone.dustful@gmail.com")).run.current_value)
+        .to eq("orderly.context@gmail.com")
+      expect(cleaner(step_context(orig_value: "someone.foo@gmail.com")).run.current_value)
+        .to eq("orderly.hvg@gmail.com")
+      expect(cleaner(step_context(orig_value: "foo.bar@gmail.com")).run.current_value)
+        .to eq("hvg.sgb@gmail.com")
+      expect(cleaner(step_context(orig_value: "foo.bar@baz.cz")).run.current_value)
+        .to eq("hvg.sgb@kgi.cz")
+    end
   end
 end

@@ -13,7 +13,7 @@ module DumpCleaner
             return step_context
           end
 
-          new_mailbox = dictionary_or_random_word_instead_of(mailbox, words: cleanup_data[words_key])
+          new_mailbox = new_mailbox(mailbox, words: cleanup_data[words_key])
           new_domain = new_domain(domain, domains: cleanup_data[domains_to_keep_key],
                                           words: cleanup_data[words_key])
 
@@ -22,6 +22,10 @@ module DumpCleaner
         end
 
         private
+
+        def new_mailbox(mailbox, words:)
+          mailbox.split(".").map { dictionary_or_random_word_instead_of(_1, words:) }.join(".")
+        end
 
         def new_domain(domain, domains:, words:)
           if domains.include?(domain)
