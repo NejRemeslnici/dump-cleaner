@@ -19,7 +19,7 @@ RSpec.describe DumpCleaner::Cleanup::StepContext do
       expect(step_context.==(step_context.dup)).to be true
     end
 
-    it "returns true if the other step_context differs in its values" do
+    it "returns false if the other step_context differs in its values" do
       expect(step_context.==(step_context(repetition: 1))).to be false
       expect(step_context.==(step_context(cleanup_data: %w[a b c d e f g h]))).to be false
     end
