@@ -16,6 +16,11 @@ module DumpCleaner
         def initialize(step_context)
           @step_context = step_context
         end
+
+        def raise_params_error(error)
+          step = self.class.name.split("::").last
+          raise ArgumentError, "Invalid data source step params: type=#{type}, step=#{step}: #{error}"
+        end
       end
     end
   end

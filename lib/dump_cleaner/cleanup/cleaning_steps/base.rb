@@ -24,7 +24,8 @@ module DumpCleaner
         end
 
         def raise_params_error(error)
-          raise ArgumentError, "Invalid step params: type=#{type}, step=#{self.class.name.split('::').last}: #{error}"
+          step = self.class.name.split("::").last
+          raise ArgumentError, "Invalid cleanup step params: type=#{type}, step=#{step}: #{error}"
         end
       end
     end

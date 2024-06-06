@@ -3,8 +3,10 @@
 module DumpCleaner
   module Cleanup
     module DataSourceSteps
-      class GroupByByteLength < Base
+      class GroupByBytesize < Base
         def run(under_keys: [])
+          validate_params(under_keys:)
+
           group_by_lambda = -> { "#{_1.length}-#{_1.bytesize}" }
 
           step_context.cleanup_data = begin
@@ -20,6 +22,14 @@ module DumpCleaner
           end
 
           step_context
+        end
+
+        private
+
+        def validate_params(under_keys:)
+          return if under_keys.all? { cleanup_data.key?(_1) }
+
+          raise_params_error("The under_keys param contains keys not present in cleanup_data.")
         end
       end
     end
