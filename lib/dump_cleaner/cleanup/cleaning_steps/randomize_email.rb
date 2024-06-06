@@ -4,7 +4,9 @@ module DumpCleaner
   module Cleanup
     module CleaningSteps
       class RandomizeEmail < Base
-        def run(domains_to_keep_key: "domains_to_keep", words_key: "words")
+        def run(domains_to_keep_data_key: "domains_to_keep", words_data_key: "words")
+          validate_params(domains_to_keep_data_key:, words_data_key:)
+
           mailbox, domain = current_value.split("@", 2)
 
           if !mailbox || !domain || mailbox.empty? || domain.empty? || !domain.include?(".")
@@ -13,9 +15,9 @@ module DumpCleaner
             return step_context
           end
 
-          new_mailbox = new_mailbox(mailbox, words: cleanup_data[words_key])
-          new_domain = new_domain(domain, domains: cleanup_data[domains_to_keep_key],
-                                          words: cleanup_data[words_key])
+          new_mailbox = new_mailbox(mailbox, words: cleanup_data[words_data_key])
+          new_domain = new_domain(domain, domains: cleanup_data[domains_to_keep_data_key],
+                                          words: cleanup_data[words_data_key])
 
           step_context.current_value = "#{new_mailbox}@#{new_domain}"
           step_context
@@ -50,6 +52,14 @@ module DumpCleaner
         def random_word_instead_of(word)
           GenerateRandomString.new(StepContext.new_from(step_context, current_value: word))
                               .run(character_set: :lowercase).current_value
+        end
+
+        def validate_params(domains_to_keep_data_key:, words_data_key:)
+          unless cleanup_data.respond_to?(:key) &&
+                 cleanup_data.key?(domains_to_keep_data_key) && cleanup_data.key?(words_data_key)
+            raise_params_error("The cleanup_data does not contain the dictionary keys
+                                \"#{domains_to_keep_data_key}\" and \"#{words_data_key})\"".gsub(/\s+/, " "))
+          end
         end
       end
     end

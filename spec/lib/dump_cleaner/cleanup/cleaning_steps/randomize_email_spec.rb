@@ -52,5 +52,18 @@ RSpec.describe DumpCleaner::Cleanup::CleaningSteps::RandomizeEmail do
       expect(cleaner(step_context(orig_value: "foo.bar@baz.cz")).run.current_value)
         .to eq("hvg.sgb@kgi.cz")
     end
+
+    it "allows specifying custom dictionary data keys" do
+      step_context = step_context(orig_value: "someone.dustful@gmail.com",
+                                  cleanup_data: { "domains" => %w[gmail.com],
+                                                  "dictionary" => { "7-7" => %w[willful foobars] } })
+      expect(cleaner(step_context).run(domains_to_keep_data_key: "domains", words_data_key: "dictionary").current_value)
+        .to eq("willful.foobars@gmail.com")
+    end
+
+    it "raises error if custom dictionary key not found in data" do
+      step_context = step_context(orig_value: "someone.dustful@gmail.com", cleanup_data: {})
+      expect { cleaner(step_context).run }.to raise_error(ArgumentError, /does not contain the dictionary keys/)
+    end
   end
 end
