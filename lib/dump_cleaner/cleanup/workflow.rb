@@ -24,6 +24,8 @@ module DumpCleaner
         @workflow_steps_cache[cache_key(type:, step_configs:)] ||= step_configs.map do |step_config|
           lambda do |step_context|
             steps_namespace(@phase).const_get(step_config.step).new(step_context).run(**step_config.params)
+          rescue NameError => e
+            raise DumpCleaner::Config::ConfigurationError, "Invalid step #{step_config.step}"
           end
         end
       end
