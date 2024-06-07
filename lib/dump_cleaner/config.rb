@@ -10,9 +10,15 @@ module DumpCleaner
 
     CleanupStepConfig = Data.define(:step, :params)
 
+    ConditionConfig = Data.define(:column, :condition, :value)
+
+    class ConfigurationError < StandardError; end
+
     def initialize(config_file)
-      @config = load(config_file)
+      @config = load(config_file) || {}
       @steps_for = {}
+      @keep_same_conditions = {}
+
       set_log_level
     end
 
@@ -28,11 +34,13 @@ module DumpCleaner
     end
 
     def keep_same_conditions(type)
-      cleanup_config_for(type)["keep_same_conditions"]
+      @keep_same_conditions[type] ||= cleanup_config_for(type)["keep_same_conditions"].map do
+        ConditionConfig.new(condition: _1["condition"], value: _1["value"], column: nil)
+      end
     end
 
     def ignore_keep_same_record_conditions?(type)
-      cleanup_config_for(type)["ignore_keep_same_record_conditions"]
+      cleanup_config_for(type)["ignore_keep_same_record_conditions"] == true
     end
 
     def cleanup_tables
@@ -50,7 +58,9 @@ module DumpCleaner
     end
 
     def set_log_level
-      Log.instance.level = @config.dig("dump_cleaner", "log_level") || "info"
+      if (level = @config.dig("dump_cleaner", "log_level"))
+        Log.instance.level = level
+      end
     end
 
     def cleanup_table_configs
@@ -59,7 +69,7 @@ module DumpCleaner
 
     def cleanup_config_for(type)
       @config.dig("cleanup_types", type.to_s) ||
-        raise("Missing type '#{type}' in the 'cleanup_types' section in config.")
+        raise(ConfigurationError, "Missing or empty type '#{type}' in the 'cleanup_types' section in config.")
     end
 
     class CleanupTableConfig
@@ -90,7 +100,9 @@ module DumpCleaner
       end
 
       def keep_same_record_conditions
-        @cleanup_table_config["keep_same_record_conditions"]
+        @keep_same_record_conditions ||= @cleanup_table_config["keep_same_record_conditions"].map do
+          ConditionConfig.new(condition: _1["condition"], value: _1["value"], column: _1["column"])
+        end
       end
     end
   end
