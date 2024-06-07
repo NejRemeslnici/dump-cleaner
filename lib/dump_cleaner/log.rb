@@ -11,12 +11,12 @@ module DumpCleaner
     def initialize
       super($stdout)
 
-      reset
+      init_log_level
+      self.formatter = ->(severity, datetime, _progname, msg) { "#{datetime} #{severity}: #{msg}\n" }
     end
 
-    def reset
+    def init_log_level
       self.level = Logger::INFO
-      self.formatter = ->(severity, datetime, _progname, msg) { "#{datetime} #{severity}: #{msg}\n" }
     end
 
     def self.debug(&block)

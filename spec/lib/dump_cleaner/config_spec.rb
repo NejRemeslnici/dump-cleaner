@@ -14,7 +14,7 @@ RSpec.describe DumpCleaner::Config do
   end
 
   before do
-    DumpCleaner::Log.instance.reset
+    DumpCleaner::Log.instance.init_log_level
   end
 
   describe "#initialize" do
