@@ -13,7 +13,7 @@ module DumpCleaner
         @config = config
       end
 
-      def clean_value_for(orig_value, type:, cleanup_data:, column_config:, record: {}, keep_record: false)
+      def clean_value_for(orig_value, type:, cleanup_data:, column_config:, record: {}, keep_record: false) # rubocop:disable Metrics/ParameterLists
         step_context = StepContext.new(orig_value:, type:, cleanup_data:, record:)
 
         # return orig_value if keep_same conditions are met
