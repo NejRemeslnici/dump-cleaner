@@ -34,7 +34,7 @@ module DumpCleaner
     end
 
     def keep_same_conditions(type)
-      @keep_same_conditions[type] ||= cleanup_config_for(type)["keep_same_conditions"].map do
+      @keep_same_conditions[type] ||= Array(cleanup_config_for(type)["keep_same_conditions"]).map do
         ConditionConfig.new(condition: _1["condition"], value: _1["value"], column: nil)
       end
     end
@@ -100,7 +100,7 @@ module DumpCleaner
       end
 
       def keep_same_record_conditions
-        @keep_same_record_conditions ||= @cleanup_table_config["keep_same_record_conditions"].map do
+        @keep_same_record_conditions ||= Array(@cleanup_table_config["keep_same_record_conditions"]).map do
           ConditionConfig.new(condition: _1["condition"], value: _1["value"], column: _1["column"])
         end
       end
