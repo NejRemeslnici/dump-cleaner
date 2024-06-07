@@ -38,12 +38,9 @@ module DumpCleaner
 
     def validate
       if !source_dump_path || !destination_dump_path # rubocop:disable Style/GuardClause
-        raise "Missing source or destination dump file or directory, please use -f and -t options. Use -h for help."
+        raise ArgumentError, "Missing source or destination dump file or directory,
+                              please use -f and -t options. Use -h for help.".gsub(/\s+/, " ")
       end
-    end
-
-    def self.parse(argv)
-      new
     end
   end
 end
