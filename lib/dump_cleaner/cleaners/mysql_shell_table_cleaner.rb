@@ -80,7 +80,7 @@ module DumpCleaner
       def keep_same_record?(record, table_config:)
         return false unless table_config.keep_same_record_conditions
 
-        Conditions.new(table_config.keep_same_record_conditions).evaluate_to_true?(record)
+        Conditions.new(table_config.keep_same_record_conditions).evaluate_to_true?(record:)
       end
 
       def warn_on_changed_line_length(orig_line, new_line, id:, record:)
