@@ -21,8 +21,8 @@ module DumpCleaner
             end
           end
 
-          unless Ensurer.instance.known?(type: step_context.type, value: result)
-            Ensurer.instance.push(type: step_context.type, value: result)
+          unless CaseInsensitiveCache.instance.known?(type: step_context.type, value: result)
+            CaseInsensitiveCache.instance.push(type: step_context.type, value: result)
             break
           end
 
@@ -39,7 +39,7 @@ module DumpCleaner
         result
       end
 
-      class Ensurer
+      class CaseInsensitiveCache
         include Singleton
 
         def initialize
