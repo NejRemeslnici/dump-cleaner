@@ -15,7 +15,7 @@ module DumpCleaner
                       when "mysql_shell_zst"
                         Cleaners::MysqlShellDumpCleaner
                       else
-                        raise "Unsupported dump format #{config.dump_format}"
+                        raise Config::ConfigurationError, "Unsupported dump format #{config.dump_format}"
                       end
 
       Log.debug { "Starting cleanup with #{cleaner_class}…" }
