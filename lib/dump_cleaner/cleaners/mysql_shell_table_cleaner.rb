@@ -7,6 +7,8 @@ module DumpCleaner
 
       include MysqlShellDumpHelpers
 
+      attr_reader :table_info, :cleanup_data, :cleaning
+
       def initialize(db:, table:, config:, options:)
         super(config:, options:)
         @db = db
@@ -21,11 +23,11 @@ module DumpCleaner
 
       def clean
         table_config = config.cleanup_table_config(db: @db, table: @table)
-        Log.info { "Cleaning table #{@table_info.db_dot_table}…" }
+        Log.info { "Cleaning table #{table_info.db_dot_table}…" }
 
         DumpCleaner::Cleanup::Uniqueness::CaseInsensitiveCache.instance.clear
 
-        Dir.glob("#{options.source_dump_path}/#{@table_info.db_at_table}@@*.tsv.zst").each do |file|
+        Dir.glob("#{options.source_dump_path}/#{table_info.db_at_table}@@*.tsv.zst").each do |file|
           # Open3.pipeline_r(["zstd", "-dc", file], ["head", "-n", "1000"]) do |tsv_data, _wait_thread|
           Open3.pipeline_r(["zstd", "-dc", file]) do |tsv_data, _wait_thread|
             Open3.pipeline_w(["zstd", "-qfo", destination_file_for(file)]) do |zstd_out, _wait_thread|
@@ -47,19 +49,19 @@ module DumpCleaner
         keep_record = keep_same_record?(record_context, table_config:)
 
         table_config.columns.each do |column_config|
-          column_index = @table_info.column_index(column_config.name)
+          column_index = table_info.column_index(column_config.name)
           raise "Invalid column specified in config: #{column_config.name}" unless column_index
 
           next if record[column_index] == "\\N" # ignore NULL values
 
-          cleanup_data = @cleanup_data.data_for(column_config.cleanup_type)
+          cleanup_data_for_type = cleanup_data.data_for(column_config.cleanup_type)
 
-          record[column_index] = @cleaning.clean_value_for(record[column_index],
-                                                           type: column_config.cleanup_type,
-                                                           cleanup_data:,
-                                                           record: record_context,
-                                                           keep_record:,
-                                                           column_config:)
+          record[column_index] = cleaning.clean_value_for(record[column_index],
+                                                          type: column_config.cleanup_type,
+                                                          cleanup_data: cleanup_data_for_type,
+                                                          record: record_context,
+                                                          keep_record:,
+                                                          column_config:)
         end
 
         new_line = record.join("\t")
@@ -71,22 +73,16 @@ module DumpCleaner
       def record_context(record, table_config:)
         columns = table_config.record_context_columns
         context = columns.each_with_object({}) do |column, context|
-          context[column] = record[@table_info.column_index(column)]
+          context[column] = record[table_info.column_index(column)]
         end
-        context["id_column"] = record[@table_info.column_index(table_config.id_column)]
+        context["id_column"] = record[table_info.column_index(table_config.id_column)]
         context
-      end
-
-      def keep_same_record?(record, table_config:)
-        return false unless table_config.keep_same_record_conditions
-
-        Conditions.new(table_config.keep_same_record_conditions).evaluate_to_true?(record:)
       end
 
       def warn_on_changed_line_length(orig_line, new_line, id:, record:)
         return if orig_line.bytesize == new_line.bytesize
 
-        warning = "ID: #{id} bytes length changed: #{orig_line.bytesize} => #{new_line.bytesize}"
+        warning = "ID: #{id} bytesize changed: #{orig_line.bytesize} => #{new_line.bytesize}"
         orig_line.split("\t").each_with_index do |column, i|
           warning << "#{column} -> #{record[i]}" if !record[i] || column.bytesize != record[i].bytesize
         end
@@ -98,7 +94,11 @@ module DumpCleaner
         require "json"
 
         def self.load(db:, table:, source_dump_path:)
-          new(JSON.parse(File.read("#{source_dump_path}/#{db}@#{table}.json")))
+          new(JSON.parse(File.read(table_info_file_path(db:, table:, source_dump_path:))))
+        end
+
+        def self.table_info_file_path(db:, table:, source_dump_path:)
+          "#{source_dump_path}/#{db}@#{table}.json"
         end
 
         def initialize(table_info)

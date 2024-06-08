@@ -21,6 +21,12 @@ module DumpCleaner
       def post_cleanup
         # Implement in subclass if needed
       end
+
+      def keep_same_record?(record, table_config:)
+        return false unless table_config.keep_same_record_conditions
+
+        Conditions.new(table_config.keep_same_record_conditions).evaluate_to_true?(record:)
+      end
     end
   end
 end
