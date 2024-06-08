@@ -94,6 +94,7 @@ module DumpCleaner
       def validate_table_info
         case table_info.compression
         when "zstd"
+          system("zstd", "--version") || raise("zstd not found in \$PATH")
         else
           raise "Unsupported dump compression format '#{table_info.compression}'"
         end

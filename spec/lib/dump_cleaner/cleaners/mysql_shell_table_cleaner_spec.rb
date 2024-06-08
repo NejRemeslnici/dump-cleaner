@@ -57,6 +57,16 @@ RSpec.describe DumpCleaner::Cleaners::MysqlShellTableCleaner do
                                                               .and_return(table_info(compression: "unknown"))
       expect { cleaner.pre_cleanup }.to raise_error("Unsupported dump compression format 'unknown'")
     end
+
+    it "raises error if the proper compression program not found in PATH" do
+      expect(described_class::DumpTableInfo).to receive(:load).with(db: "db", table: "table",
+                                                                    source_dump_path: "source_dump")
+                                                              .and_return(table_info)
+
+      with_modified_env("PATH" => "") do
+        expect { cleaner.pre_cleanup }.to raise_error("zstd not found in \$PATH")
+      end
+    end
   end
 
   describe "#clean" do

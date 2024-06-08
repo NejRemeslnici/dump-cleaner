@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "dump_cleaner"
+require "support/os_helpers"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -12,4 +13,6 @@ RSpec.configure do |config|
   config.mock_with :rspec do |mocks|
     mocks.verify_partial_doubles = true
   end
+
+  config.include Support::OsHelpers
 end
