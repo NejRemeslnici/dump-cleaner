@@ -15,7 +15,7 @@ RSpec.describe DumpCleaner::Processor do
 
   describe "#run" do
     it "calls the proper cleaner for the configured dump type" do
-      with_config_file("dump:\n  format: mysql_shell_zst") do |config_file|
+      with_config_file("dump:\n  format: mysql_shell") do |config_file|
         options = DumpCleaner::Options.new(["-f", "source", "-t", "dest", "-c", config_file])
         allow(DumpCleaner::Cleaners::MysqlShellDumpCleaner).to receive(:new).and_call_original
 
@@ -26,7 +26,7 @@ RSpec.describe DumpCleaner::Processor do
     end
 
     it "calls the cleaner's hooks" do
-      with_config_file("dump:\n  format: mysql_shell_zst") do |config_file|
+      with_config_file("dump:\n  format: mysql_shell") do |config_file|
         double = instance_double("DumpCleaner::Cleaners::MysqlShellDumpCleaner")
         allow(DumpCleaner::Cleaners::MysqlShellDumpCleaner).to receive(:new).and_return(double)
 

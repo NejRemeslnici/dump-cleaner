@@ -12,7 +12,7 @@ module DumpCleaner
       start_time = Time.now
 
       cleaner_class = case config.dump_format
-                      when "mysql_shell_zst"
+                      when "mysql_shell"
                         Cleaners::MysqlShellDumpCleaner
                       else
                         raise Config::ConfigurationError, "Unsupported dump format #{config.dump_format}"
