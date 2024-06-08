@@ -19,6 +19,8 @@ module DumpCleaner
 
       def pre_cleanup
         @table_info = DumpTableInfo.load(db: @db, table: @table, source_dump_path: options.source_dump_path)
+
+        raise "Unsupported dump compression format '#{table_info.compression}'" unless table_info.compression == "zstd"
       end
 
       def clean
@@ -27,7 +29,7 @@ module DumpCleaner
 
         DumpCleaner::Cleanup::Uniqueness::CaseInsensitiveCache.instance.clear
 
-        Dir.glob("#{options.source_dump_path}/#{table_info.db_at_table}@@*.tsv.zst").each do |file|
+        Dir.glob("#{options.source_dump_path}/#{table_info.db_at_table}@@*.#{table_info.extension}").each do |file|
           # Open3.pipeline_r(["zstd", "-dc", file], ["head", "-n", "1000"]) do |tsv_data, _wait_thread|
           Open3.pipeline_r(["zstd", "-dc", file]) do |tsv_data, _wait_thread|
             Open3.pipeline_w(["zstd", "-qfo", destination_file_for(file)]) do |zstd_out, _wait_thread|
@@ -119,6 +121,14 @@ module DumpCleaner
 
         def db_at_table
           "#{db}@#{table}"
+        end
+
+        def compression
+          @table_info["compression"]
+        end
+
+        def extension
+          @table_info["extension"]
         end
 
         def columns

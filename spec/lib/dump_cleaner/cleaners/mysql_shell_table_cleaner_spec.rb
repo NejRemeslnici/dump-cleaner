@@ -24,27 +24,38 @@ RSpec.describe DumpCleaner::Cleaners::MysqlShellTableCleaner do
     instance_double(DumpCleaner::Options, source_dump_path: "source_dump", destination_dump_path: "dest_dump")
   end
 
-  let(:table_info) do
-    table_info = instance_double(DumpCleaner::Cleaners::MysqlShellTableCleaner::DumpTableInfo,
-                                 db_dot_table: "db.table",
-                                 db_at_table: "db@table")
-    allow(table_info).to receive(:column_index).with("id").and_return(0)
-    allow(table_info).to receive(:column_index).with("name").and_return(1)
-    allow(table_info).to receive(:column_index).with("email").and_return(2)
-    table_info
-  end
-
   let(:record_context) do
     { "id" => "1", "name" => "Some Name", "email" => "someone@example.com" }
   end
 
   let(:cleaner) { described_class.new(db: "db", table: "table", config:, options:) }
 
+  def table_info(compression: "zstd")
+    table_info = instance_double(DumpCleaner::Cleaners::MysqlShellTableCleaner::DumpTableInfo,
+                                 db_dot_table: "db.table",
+                                 db_at_table: "db@table",
+                                 compression:,
+                                 extension: "tsv.zst")
+    allow(table_info).to receive(:column_index).with("id").and_return(0)
+    allow(table_info).to receive(:column_index).with("name").and_return(1)
+    allow(table_info).to receive(:column_index).with("email").and_return(2)
+
+    table_info
+  end
+
   describe "#pre_cleanup" do
     it "calls the DumpTableInfo to load the table info JSON file from the dump" do
       expect(described_class::DumpTableInfo).to receive(:load).with(db: "db", table: "table",
                                                                     source_dump_path: "source_dump")
+                                                              .and_return(table_info)
       cleaner.pre_cleanup
+    end
+
+    it "raises error if unsupported compression format found in table info" do
+      expect(described_class::DumpTableInfo).to receive(:load).with(db: "db", table: "table",
+                                                                    source_dump_path: "source_dump")
+                                                              .and_return(table_info(compression: "unknown"))
+      expect { cleaner.pre_cleanup }.to raise_error("Unsupported dump compression format 'unknown'")
     end
   end
 
@@ -164,13 +175,16 @@ RSpec.describe DumpCleaner::Cleaners::MysqlShellTableCleaner do
 
     context "with parsed data" do
       let(:table_info) do
-        described_class.new({ "options" => { "columns" => %w[id name email], "schema" => "db", "table" => "table" } })
+        described_class.new({ "options" => { "columns" => %w[id name email], "schema" => "db", "table" => "table" },
+                              "compression" => "zstd", "extension" => "tsv.zst" })
       end
 
       it "returns the parsed data" do
         expect(table_info.db).to eq("db")
         expect(table_info.table).to eq("table")
         expect(table_info.columns).to eq(%w[id name email])
+        expect(table_info.compression).to eq("zstd")
+        expect(table_info.extension).to eq("tsv.zst")
       end
 
       describe "#db_dot_table" do
