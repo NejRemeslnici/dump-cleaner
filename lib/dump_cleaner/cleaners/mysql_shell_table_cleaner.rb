@@ -23,7 +23,7 @@ module DumpCleaner
         table_config = config.cleanup_table_config(db: @db, table: @table)
         Log.info { "Cleaning table #{@table_info.db_dot_table}…" }
 
-        DumpCleaner::Cleanup::Uniqueness::Ensurer.instance.clear
+        DumpCleaner::Cleanup::Uniqueness::CaseInsensitiveCache.instance.clear
 
         Dir.glob("#{options.source_dump_path}/#{@table_info.db_at_table}@@*.tsv.zst").each do |file|
           # Open3.pipeline_r(["zstd", "-dc", file], ["head", "-n", "1000"]) do |tsv_data, _wait_thread|
