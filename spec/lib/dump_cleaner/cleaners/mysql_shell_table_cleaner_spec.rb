@@ -6,6 +6,8 @@ require "tempfile"
 RSpec.describe DumpCleaner::Cleaners::MysqlShellTableCleaner do
   let(:table_config) do
     instance_double(DumpCleaner::Config::CleanupTableConfig,
+                    db: "db",
+                    table: "table",
                     columns: [
                       DumpCleaner::Config::CleanupTableColumnConfig.new(name: "name", cleanup_type: "name",
                                                                         unique: false),
