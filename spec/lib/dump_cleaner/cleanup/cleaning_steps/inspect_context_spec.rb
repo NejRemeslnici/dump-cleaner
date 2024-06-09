@@ -23,7 +23,6 @@ RSpec.describe DumpCleaner::Cleanup::CleaningSteps::InspectContext do
       cleaner = cleaner(step_context)
 
       block = lambda do
-        log.level = :debug
         log.reopen($stdout)
         allow(cleaner.step_context).to receive(:pretty_print).and_call_original
         cleaner.run

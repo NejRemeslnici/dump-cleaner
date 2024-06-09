@@ -12,8 +12,6 @@ RSpec.describe DumpCleaner::Cleanup::Inspection do
 
   describe "#inspect_step_context" do
     it "calls pretty_print on the step_context" do
-      DumpCleaner::Log.instance.level = :debug
-
       step_context = step_context()
       expect(step_context).to receive(:pretty_inspect)
 

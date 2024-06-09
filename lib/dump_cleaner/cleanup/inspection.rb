@@ -4,8 +4,8 @@ module DumpCleaner
   module Cleanup
     module Inspection
       def inspect_step_context(step_context, message: "Inspecting step context")
-        Log.debug { message }
-        Log.debug { "\n#{step_context.pretty_inspect}" }
+        Log.info { message }
+        Log.info { "\n#{step_context.pretty_inspect}" }
       end
 
       def subset(data, values: 10)
