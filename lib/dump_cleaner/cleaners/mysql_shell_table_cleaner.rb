@@ -32,7 +32,8 @@ module DumpCleaner
           Open3.pipeline_r(pipe_source_args(file)) do |tsv_data, _wait_thread|
             Open3.pipeline_w(pipe_sink_args(destination_file_for(file))) do |zstd_out, _wait_thread|
               tsv_data.each_line do |line|
-                zstd_out.print clean_line(line, table_config:)
+                line = line.chomp(table_info.dialect.lines_terminated_by)
+                zstd_out.print "#{clean_line(line, table_config:)}#{table_info.dialect.lines_terminated_by}"
               end
             end
           end
@@ -116,6 +117,9 @@ module DumpCleaner
       class DumpTableInfo
         require "json"
 
+        DialectOptions = Data.define(:lines_terminated_by, :fields_terminated_by, :fields_enclosed_by,
+                                     :fields_optionally_enclosed, :fields_escaped_by)
+
         def self.load(db:, table:, source_dump_path:)
           new(JSON.parse(File.read(table_info_file_path(db:, table:, source_dump_path:))))
         end
@@ -158,6 +162,18 @@ module DumpCleaner
 
         def column_index(name)
           columns.index(name)
+        end
+
+        def dialect
+          @dialect ||= begin
+            dialect_options = DialectOptions.members.each_with_object({}) do |option, options|
+              lowercase_option = option.to_s.split("_").each_with_object([]) do |e, buffer|
+                buffer.push(buffer.empty? ? e : e.capitalize)
+              end.join
+              options[option] = @table_info.dig("options", lowercase_option)
+            end
+            DialectOptions.new(**dialect_options)
+          end
         end
       end
     end
