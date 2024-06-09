@@ -66,4 +66,20 @@ RSpec.describe DumpCleaner::Cleaners::MysqlShellDumpCleaner do
       end
     end
   end
+
+  describe "integration tests" do
+    it "cleans the mysql shell dump" do
+      Dir.mktmpdir do |dir|
+        system("ruby -Ilib exe/dump_cleaner -f spec/support/data/mysql_shell_dump -t #{dir} \
+                -c spec/support/data/mysql_shell_dump_cleaner.yml")
+
+        expect(File.exist?("#{dir}/db@users@@0.tsv.zst")).to be true
+
+        output = `zstd -dc #{dir}/db@users@@0.tsv.zst`
+        expect(output).to include("1\tJackson\tvariety@gmail.com\t+420774443735\n")
+        expect(output).to include("2\tAllen\tcontains@present.com\t+420733637921\n")
+        expect(output).to include("3\tHarrison\tshould.visitors@program.com\tN/A\n")
+      end
+    end
+  end
 end
