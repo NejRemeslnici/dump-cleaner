@@ -1,0 +1,16 @@
+{
+    "schema": "db",
+    "includesDdl": true,
+    "includesViewsDdl": true,
+    "includesData": true,
+    "tables": [
+        "users"
+    ],
+    "views": [],
+    "events": [],
+    "functions": [],
+    "procedures": [],
+    "basenames": {
+        "users": "db@users"
+    }
+}

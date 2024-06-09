@@ -1,0 +1,64 @@
+dump_cleaner:
+  log_level: info
+
+dump:
+  format: mysql_shell
+
+cleanup_tables:
+  - db: db
+    table: users
+    columns:
+      - name: name
+        cleanup_type: last_name
+      - name: e_mail
+        cleanup_type: email
+      - name: phone_number
+        cleanup_type: phone_number_intl
+
+cleanup_types:
+  last_name:
+    data_source:
+      - step: LoadYamlFile
+        params:
+          file: spec/support/data/dict/last_names.yml
+      - step: GroupByBytesize
+    cleaning:
+      - step: SelectDataByBytesize
+      - step: TakeSample
+    failure:
+      - step: FillUpWithString
+
+  email:
+    data_source:
+      - step: LoadYamlFile
+        params:
+          file: spec/support/data/dict/well_known_domains.yml
+          under_key: domains_to_keep
+      - step: LoadYamlFile
+        params:
+          file: spec/support/data/dict/random_words.yml
+          under_key: words
+      - step: RemoveAccents
+        params:
+          under_keys:
+            - words
+      - step: GroupByBytesize
+        params:
+          under_keys:
+            - words
+    cleaning:
+      - step: RandomizeEmail
+    failure:
+      - step: FillUpWithString
+
+  phone_number_intl:
+    cleaning:
+      - step: RandomizeFormattedNumber
+        params:
+          # +420123456789
+          format: (?<front>\+(?:\d{6}))(?<x>\d{6})
+    failure:
+      - step: FillUpWithString
+    keep_same_conditions:
+      - condition: eq
+        value: "N/A"

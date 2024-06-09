@@ -1,0 +1,29 @@
+{
+    "dumper": "mysqlsh Ver 8.4.0 for Linux on x86_64 - for MySQL 8.4.0 (MySQL Community Server (GPL))",
+    "version": "2.0.1",
+    "origin": "dumpSchemas",
+    "schemas": [
+        "db"
+    ],
+    "basenames": {
+        "db": "db"
+    },
+    "defaultCharacterSet": "utf8mb4",
+    "tzUtc": true,
+    "bytesPerChunk": 64000000,
+    "user": "root",
+    "hostname": "apsara",
+    "server": "apsara",
+    "serverVersion": "8.4.0",
+    "binlogFile": "",
+    "binlogPosition": 0,
+    "gtidExecuted": "",
+    "gtidExecutedInconsistent": false,
+    "consistent": true,
+    "targetVersion": "8.4.0",
+    "partialRevokes": false,
+    "compatibilityOptions": [],
+    "capabilities": [],
+    "checksum": false,
+    "begin": "2024-06-09 08:00:40"
+}

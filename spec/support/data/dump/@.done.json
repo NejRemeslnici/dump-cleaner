@@ -1,0 +1,17 @@
+{
+    "end": "2024-06-09 08:00:40",
+    "dataBytes": 128,
+    "tableDataBytes": {
+        "db": {
+            "users": 128
+        }
+    },
+    "tableRows": {
+        "db": {
+            "users": 3
+        }
+    },
+    "chunkFileBytes": {
+        "db@users@@0.tsv.zst": 128
+    }
+}
