@@ -122,6 +122,8 @@ module DumpCleaner
 
         def self.load(db:, table:, source_dump_path:)
           new(JSON.parse(File.read(table_info_file_path(db:, table:, source_dump_path:))))
+        rescue Errno::ENOENT
+          raise "Table info file not found in dump for table '#{db}.#{table}'. Is the table included in the dump?"
         end
 
         def self.table_info_file_path(db:, table:, source_dump_path:)

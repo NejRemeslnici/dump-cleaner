@@ -189,6 +189,12 @@ RSpec.describe DumpCleaner::Cleaners::MysqlShellTableCleaner do
           described_class.load(db: "db", table: "table", source_dump_path: "source_dump")
         end
       end
+
+      it "raises error if the JSON file is not found" do
+        expect(described_class).to receive(:table_info_file_path).and_return("non_existent.json")
+        expect { described_class.load(db: "db", table: "table", source_dump_path: "source_dump") }
+          .to raise_error(/Table info file not found/)
+      end
     end
 
     context "with parsed data" do
