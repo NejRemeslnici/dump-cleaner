@@ -10,10 +10,18 @@ RSpec.describe DumpCleaner::Cleaners::MysqlShellDumpCleaner do
   end
 
   describe "#pre_cleanup" do
+    it "checks if the source dump path exists" do
+      options = instance_double(DumpCleaner::Options, source_dump_path: "non_existent",
+                                                      destination_dump_path: "dest_dump")
+
+      expect { described_class.new(config:, options:).pre_cleanup }.to raise_error(/Source dump path does not exist/)
+    end
+
     it "creates the destination dump directory" do
       Dir.mktmpdir do |dir|
         options = instance_double(DumpCleaner::Options, source_dump_path: "#{dir}/source_dump",
                                                         destination_dump_path: "#{dir}/dest_dump")
+        Dir.mkdir("#{dir}/source_dump")
         expect(Dir.exist?("#{dir}/dest_dump")).to be false
 
         described_class.new(config:, options:).pre_cleanup
