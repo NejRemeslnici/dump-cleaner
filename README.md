@@ -59,11 +59,42 @@ $ dump_cleaner -f <source_dump_path> -t <destination_dump_path> [-c <config_file
 ```
 
 where:
-- `-f` / `--from=` is the path to the source (original, non-anonymized) data dump; for MySQL Shell this is the directory with the dump
-- `-t` / `--to=` is the path to the destination (anonymized) data dump; for MySQL Shell this is the directory with the dump which will be created or overwritten by DumpCleaner
-- `-c` / `--config=` path to the configuration file, see below (default: `config/dump_cleaner.yml`)
+- `-f` / `--from=` sets the path to the source (original, non-anonymized) data dump; for MySQL Shell this is the directory with the dump created by the MySQL Shell dump utility
+- `-t` / `--to=` sets the path to the destination (anonymized) data dump; for MySQL Shell this is the directory with the dump which will be created or overwritten by DumpCleaner
+- `-c` / `--config=` sets the path to the configuration file, see below (default: `config/dump_cleaner.yml`)
+
+### How does DumpCleaner work?
+
+DumpCleaner first reads the config file (see below for details). From the configuration, it finds the tables and columns that need to be sanitized by the cleaning process. It parses the dump data for each table, extracts the fields from each record and runs the following workflows for each field:
+
+- A **”data source“ workflow** that grabs the data for the given data type that will be needed for the cleaning workflow that comes next.
+- A **”cleaning“ workflow** usually further extracts the relevant part from the somewhat generic source data based on the field value and then, more importantly, ”cleans“ the field value by randomizing or anonymizing it somehow.
+- Optionally, a **”failure“ workflow** which serves as a last resort when the previous steps fail for some reason (return a `nil` value). This workflow usually replaces the field value with a completely random one.
+
+The overall process is summarized in the diagram below, too:
+
+```mermaid
+flowchart LR
+    A(start) --> AA[read\nconfig]
+    AA --> B{{each\ntable}}
+    B --> BB{{each\nrecord}}
+    BB --> C{{each\nfield}}
+    C -->D[run the\ndata source steps]
+    D -->E[run the\ncleaning steps]
+    E -->F{failed?}
+    F -->|yes|G[run the\nfailure steps]
+    G --> H
+    F -->|no|H{result\nunique?}
+    H -->|yes or\nirrelevant|L{more\ndata?}
+    H --> |no but wanted| E
+    L -.-> |yes| C
+    L -.-> |yes| BB
+    L -.-> |yes| B
+    L --> |no| Z(end)
+```
 
 ## Configuration
+
 
 
 ## Development
