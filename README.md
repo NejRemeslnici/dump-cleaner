@@ -63,7 +63,7 @@ $ dump_cleaner -f <source_dump_path> -t <destination_dump_path> [-c <config_file
 where:
 - `-f` / `--from=` sets the path to the source (original, non-anonymized) data dump; for MySQL Shell this is the directory with the dump created by the MySQL Shell dump utility
 - `-t` / `--to=` sets the path to the destination (anonymized) data dump; for MySQL Shell this is the directory with the dump which will be created or overwritten by DumpCleaner
-- `-c` / `--config=` sets the path to the configuration file, see below (default: `config/dump_cleaner.yml`); the configuration is documented below
+- `-c` / `--config=` sets the path to the [configuration file](#configuration) (default: `config/dump_cleaner.yml`); the configuration is documented below
 
 ### A basic example
 
@@ -110,9 +110,11 @@ There are a few things to note here:
 
 If DumpCleaner was run once again over the same source data and using the same config, it would produce exactly the same randomized data in the output.
 
+_Read on if you are interested in more details about how DumpCleaner works, otherwise you can safely skip to the [Configuration](#configuration) section._
+
 ### How does DumpCleaner work?
 
-DumpCleaner first reads the config file (see below for details). From the configuration, it finds the tables and columns that need to be sanitized by the cleaning process. It parses the dump data for each table, extracts the fields from each record and runs the following workflows for each to-be-cleaned field:
+DumpCleaner first reads the [config file](#configuration). From the configuration, it finds the tables and columns that need to be sanitized by the cleaning process. It parses the dump data for each table, extracts the fields from each record and runs the following workflows for each to-be-cleaned field:
 
 - A **”data source“ workflow** that grabs the data for the given data type that will be needed for the cleaning workflow that comes next. This data is then cached.
 - A **”cleaning“ workflow** usually further extracts the relevant part from the somewhat generic source data based on the individual field value and then, more importantly, ”cleans“ the field value by randomizing or anonymizing it somehow.
@@ -145,20 +147,20 @@ flowchart LR
 
 ### Unique values
 
-A particular column in a table may be configured to require unique data. In that case, the cleaning process is repeated until it produces a unique randomized value, or until max retries is reached (currently 1000).
+A particular column in a table may be configured to require unique randomized data. In that case, the cleaning process is repeated until it produces a unique randomized value, or until max retries limit is reached (currently 1000).
 
-The cleaning workflow steps usually just add a numeric suffix to the randomized value, without increasing its length (and byte size). For example, if the sanitized value is `something`, its unique variant may become `somethin1` or even `somethi99`. Some cleaning steps, on the other hand, allow repeating taking a random value from the dictionary instead of adding a suffix.
+The cleaning workflow steps usually just add a numeric suffix to the randomized value, without increasing its length (and byte size). For example, if the sanitized value is `something`, its unique variant may become `somethin1` or even `somethi99`. Some cleaning steps, on the other hand, allow repeatedly taking a random value from the dictionary instead of adding a suffix.
 
 When max retries is reached, DumpCleaner prints an error and switches to the failure workflow for further processing.
 
-### The randomization is deterministic
+### Randomization is deterministic
 
 To achieve a deterministic randomness when cleaning the data, each random number generation is seeded with a [value](https://github.com/NejRemeslnici/dump-cleaner/blob/main/lib/dump_cleaner/cleanup/cleaning_steps/base.rb#L21) reflecting **the identity of the current record** (usually it’s primary key value) and the field original value. This guarantees that the same source data in the same record will be always cleaned up to the same randomized data.
 
 There are some practical limits to this consistency though:
 
 - if the randomization works with a dictionary and that dictionary is updated, the cleaned data will change, too, and
-- if uniqueness of a column is requested, the randomization process is retried for that field until a unique value is found; this makes the randomization rely on the values of the previously encountered conflicting values and if _any_ of them changes in the source data, the final cleaned value changes, too.
+- if [uniqueness](#unique-values) of a column is requested, the randomization process is retried for that field until a unique value is found; this makes the randomization rely on the values of the previously encountered conflicting values and if _any_ of them changes in the source data, the final cleaned value changes, too.
 
 ## Configuration
 
@@ -238,9 +240,9 @@ This setting currently only defines the format of the data dump using the `forma
 
 This is where things get more interesting. The `cleanup_tables` key specifies which tables (via the `db` and `table` properties) and their columns (via the `name` property nested inside the `columns` array) should be cleaned and what `cleanup_type` each column is, i.e. which variant of the cleanup process will be used for it. Optionally, a column may also include a `unique` property: when set to `true` the randomized values in this column will be guaranteed to be unique across the table.
 
-Optionally, an `id_column` key may be given that determines the foreign key which is responsible for determining the identity of the table records (see the Randomization section above). For example a table that [belongs_to](https://guides.rubyonrails.org/association_basics.html#the-belongs-to-association) the `users` table might have the `id_column` set to `user_id` and this would ensure that the values in this table would be randomized the same as the corresponding values in the `users` table, keeping consistency across the associated tables. This property defaults to `"id"`.
+Optionally, an `id_column` key may be given that determines the foreign key which is responsible for determining the identity of the table records (see the [Randomization](#randomization-is-deterministic) section above). For example a table that [belongs_to](https://guides.rubyonrails.org/association_basics.html#the-belongs-to-association) the `users` table might have the `id_column` set to `user_id` and this would ensure that the values in this table would be randomized the same as the corresponding values in the `users` table, keeping consistency across the associated tables. This property defaults to `"id"`.
 
-Optionally, the `keep_same_conditions` key may also hold Conditions (see below) for ignoring the cleanup of a record from the table. When the conditions evaluate to a truthy value for the record, none of its fields gets cleaned. This is useful if you want to keep some records (say admin users) in the original state.
+Optionally, the `keep_same_conditions` key may also hold [conditions](#keep_same_conditions) for ignoring the cleanup of a record from the table. When the conditions evaluate to a truthy value for the record, none of its fields gets cleaned. This is useful if you want to keep some records (say admin users) in the original state.
 
 The optional `record_context_columns` property may define a list of columns the source values of which should be available for the cleaning workflows. This is currently used when evaluating the `keep_same_conditions`. (This could probably be refactored out as it unnecessarily duplicates the configuration a bit.)
 
@@ -250,9 +252,24 @@ The core of the sanitization process lies here. Under this key the relevant step
 
 See the **dedicated page** for the individual steps documentation.
 
-Optionally, under the `keep_same_conditions` property, Conditions (see below) for ignoring the cleanup of the given cleanup type may be given. If they evaluate to true for the currently processed field value, it’s cleanup is skipped and the original value is returned.
+Optionally, under the `keep_same_conditions` property, [conditions](#keep_same_conditions) for ignoring the cleanup of the given cleanup type may be given. If they evaluate to true for the currently processed field value, it’s cleanup is skipped and the original value is returned.
 
 Finally, the optional `ignore_keep_same_record_conditions` property may be set to true to indicate that current field value should be always cleaned, even if the `keep_same_conditions` were used for the whole record at the `cleanup_table` level.
+
+### `keep_same_conditions`
+
+The `keep_same_conditions` property may define a list of conditions that will prevent cleaning up the given field or record. Each condition is a hash that consists of the following properties:
+
+- `column` - defines the column in the table that the condition should take the field’s value from (this is useful only when using the `keep_same_conditions` under the [`cleanup_tables`](#cleanup_tables) configuration key whereas in the `cleanup_types` context the column is implied),
+- `condition` - specifies the operator or function that the condition should evaluate; currently supported values here are:
+  - `eq` - tests with `==`
+  - `ne` - tests with `!=`
+  - `start_with` - tests strings with the [`start_with?` method](https://ruby-doc.org/3.3.2/String.html#method-i-start_with-3F)
+  - `end_with` - tests strings with the [`end_with?` method](https://ruby-doc.org/3.3.2/String.html#method-i-end_with-3F)
+  - `non_zero` - converts the value to an integer and tests if it is different from zero,
+- `value` - the value to evaluate the condition against (some operators may not use a value, such as `non_zero`).
+
+If multiple conditions are specified, they are logically OR-ed, i.e. if _any_ of the conditions yields true, the whole statement yields true and the record or field cleaning is skipped.
 
 ## Development
 
