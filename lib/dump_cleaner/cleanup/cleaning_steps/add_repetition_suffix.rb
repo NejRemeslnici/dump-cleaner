@@ -13,7 +13,7 @@ module DumpCleaner
                                          replace_suffix(current_value, suffix: repetition.to_s, padding: "0")
                                        else
                                          GenerateRandomString.new(StepContext.new_from(step_context))
-                                                               .run.current_value
+                                                             .run.current_value
                                        end
           step_context
         end
