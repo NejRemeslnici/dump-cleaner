@@ -6,7 +6,7 @@ module DumpCleaner
       class GenerateRandomString < Base
         require "random/formatter"
 
-        def run(character_set: :alphanumeric)
+        def run(character_set: "alphanumeric")
           random = Random.new(crc32)
 
           step_context.current_value = random.alphanumeric(current_value.bytesize, chars: characters(character_set))
@@ -16,16 +16,16 @@ module DumpCleaner
         private
 
         def characters(character_set)
-          case character_set
-          when :alphanumeric
+          case character_set.to_s
+          when "alphanumeric"
             Random::Formatter::ALPHANUMERIC
-          when :alpha
+          when "alpha"
             [*"a".."z", *"A".."Z"]
-          when :lowercase
+          when "lowercase"
             [*"a".."z"]
-          when :uppercase
+          when "uppercase"
             [*"A".."Z"]
-          when :numeric
+          when "numeric"
             [*"0".."9"]
           else
             character_set

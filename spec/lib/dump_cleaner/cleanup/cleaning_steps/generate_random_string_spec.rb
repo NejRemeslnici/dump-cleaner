@@ -29,22 +29,22 @@ RSpec.describe DumpCleaner::Cleanup::CleaningSteps::GenerateRandomString do
 
     it "returns a random (deterministic) alpha string" do
       step_context = step_context(orig_value: "abcdef")
-      expect(cleaner(step_context).run(character_set: :alpha).current_value).to eq("KWZqhW")
+      expect(cleaner(step_context).run(character_set: "alpha").current_value).to eq("KWZqhW")
     end
 
     it "returns a random (deterministic) uppercase string" do
       step_context = step_context(orig_value: "abcdef")
-      expect(cleaner(step_context).run(character_set: :uppercase).current_value).to eq("KTZFNE")
+      expect(cleaner(step_context).run(character_set: "uppercase").current_value).to eq("KTZFNE")
     end
 
     it "returns a random (deterministic) lowercase string" do
       step_context = step_context(orig_value: "abcdef")
-      expect(cleaner(step_context).run(character_set: :lowercase).current_value).to eq("ktzfne")
+      expect(cleaner(step_context).run(character_set: "lowercase").current_value).to eq("ktzfne")
     end
 
     it "returns a random (deterministic) numeric string" do
       step_context = step_context(orig_value: "abcdef")
-      expect(cleaner(step_context).run(character_set: :numeric).current_value).to eq("883244")
+      expect(cleaner(step_context).run(character_set: "numeric").current_value).to eq("883244")
     end
 
     it "returns a random (deterministic) string from the defined custom character set" do
