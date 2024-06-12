@@ -105,15 +105,15 @@ This step uses the [`unicode_normalize`](https://ruby-doc.org/stdlib-2.4.0/libdo
 ```yaml
 - step: RemoveAccents
   under_keys:
-    - accented_words
+    - accounts
 ```
 </td>
 <td>
 
 ```
 {
- "accented_words" => ["naïve", "résumé"],
- "other_words" => ["café", "jalapeño"]
+ "accounts" => ["zoë", "renée"],
+ "words" => ["café", "jalapeño"]
 }
 ```
 </td>
@@ -121,8 +121,8 @@ This step uses the [`unicode_normalize`](https://ruby-doc.org/stdlib-2.4.0/libdo
 
 ```
 {
- "accented_words" => ["naive", "resume"],
- "other_words" => ["café", "jalapeño"]
+ "logins" => ["zoe", "renee"],
+ "words" => ["café", "jalapeño"]
 }
 ```
 </td>
