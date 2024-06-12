@@ -313,7 +313,7 @@ If the current value is too small to even hold a repetition suffix, it is replac
 <table>
 <tr><th>configuration</th><th>input value</th><th>output value</th></tr>
 <tbody>
-<tr style="vertical-align: top">
+<tr>
 <td>
 
 ```yaml
@@ -335,7 +335,7 @@ If the current value is too small to even hold a repetition suffix, it is replac
 ```
 </td>
 </tr>
-<tr style="vertical-align: top">
+<tr>
 <td>
 
 ```yaml
@@ -357,7 +357,7 @@ If the current value is too small to even hold a repetition suffix, it is replac
 ```
 </td>
 </tr>
-<tr style="vertical-align: top">
+<tr>
 <td>
 
 ```yaml
@@ -397,7 +397,7 @@ This step replaces the current value with a predefined static string. By default
 <table>
 <tr><th>configuration</th><th>input value</th><th>output value</th></tr>
 <tbody>
-<tr style="vertical-align: top">
+<tr>
 <td>
 
 ```yaml
@@ -418,7 +418,7 @@ This step replaces the current value with a predefined static string. By default
 ```
 </td>
 </tr>
-<tr style="vertical-align: top">
+<tr>
 <td>
 
 ```yaml
@@ -440,7 +440,7 @@ This step replaces the current value with a predefined static string. By default
 ```
 </td>
 </tr>
-<tr style="vertical-align: top">
+<tr>
 <td>
 
 ```yaml
@@ -463,7 +463,7 @@ This step replaces the current value with a predefined static string. By default
 ```
 </td>
 </tr>
-<tr style="vertical-align: top">
+<tr>
 <td>
 
 ```yaml
@@ -487,7 +487,7 @@ This step replaces the current value with a predefined static string. By default
 ```
 </td>
 </tr>
-<tr style="vertical-align: top">
+<tr>
 <td>
 
 ```yaml
@@ -533,7 +533,7 @@ This step replaces the current value using a generated a random string with the 
 <table>
 <tr><th>configuration</th><th>input value</th><th>output value</th></tr>
 <tbody>
-<tr style="vertical-align: top">
+<tr>
 <td>
 
 ```yaml
@@ -553,7 +553,7 @@ This step replaces the current value using a generated a random string with the 
 ```
 </td>
 </tr>
-<tr style="vertical-align: top">
+<tr>
 <td>
 
 ```yaml
@@ -575,7 +575,7 @@ This step replaces the current value using a generated a random string with the 
 ```
 </td>
 </tr>
-<tr style="vertical-align: top">
+<tr>
 <td>
 
 ```yaml
@@ -597,7 +597,7 @@ This step replaces the current value using a generated a random string with the 
 ```
 </td>
 </tr>
-<tr style="vertical-align: top">
+<tr>
 <td>
 
 ```yaml
@@ -619,7 +619,7 @@ This step replaces the current value using a generated a random string with the 
 ```
 </td>
 </tr>
-<tr style="vertical-align: top">
+<tr>
 <td>
 
 ```yaml
@@ -641,7 +641,7 @@ This step replaces the current value using a generated a random string with the 
 ```
 </td>
 </tr>
-<tr style="vertical-align: top">
+<tr>
 <td>
 
 ```yaml
