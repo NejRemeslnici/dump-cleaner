@@ -2,7 +2,7 @@
 
 DumpCleaner is a tool that can randomize or anonymize your database dumps. Currently, it works with the [MySQL Shell Dump](https://dev.mysql.com/doc/mysql-shell/8.4/en/mysql-shell-utilities-dump-instance-schema.html) format (other formats may be added later).
 
-_While we use DumpCleaner in our production setup, this gem is probably still of a pre-production quality._
+_Even though we use DumpCleaner in our production setup, this project still beta quality and may experience breaking changes._
 
 ## Why?
 
@@ -252,7 +252,7 @@ The optional `record_context_columns` property may define a list of columns the 
 
 The core of the sanitization process lies here. Under this key the relevant steps for the `data_source`, `cleaning` or `failure` workflows are specified, each with optional `params`. In general, the output of one step makes the input of the following step. It is considered an error if a `cleaning` step returns a `nil` value and that’s when the processing switches to the `failure` workflow.
 
-**See the [Workflow steps page](doc/workflow_steps.md) section** below for the individual steps documentation.
+**See the [Workflow steps page](doc/workflow_steps.md) for the individual steps documentation.**
 
 Optionally, under the `keep_same_conditions` property, [conditions](#keep_same_conditions) for ignoring the cleanup of the given cleanup type may be given. If they evaluate to true for the currently processed field value, it’s cleanup is skipped and the original value is returned.
 
