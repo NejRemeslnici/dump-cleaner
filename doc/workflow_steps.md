@@ -68,15 +68,67 @@ Care should be taken when loading string data taken from various dictionaries. T
 
 ### [RemoveAccents](https://github.com/NejRemeslnici/dump-cleaner/blob/main/lib/dump_cleaner/cleanup/data_source_steps/remove_accents.rb)
 
-This step uses the [`unicode_normalize`](https://ruby-doc.org/stdlib-2.4.0/libdoc/unicode_normalize/rdoc/String.html) method to remove all accents from all values in the cleanup data, i.e., for example, ”naïve“ will be converted to ”naive“. This can be useful for example when we want to use the same YAML file to build a generic random words dictionary as well as a dictionary of logins or domains (which should have no accented characters in them).
+This step uses the [`unicode_normalize`](https://ruby-doc.org/stdlib-2.4.0/libdoc/unicode_normalize/rdoc/String.html) method to remove all accents from all values in the cleanup data, i.e., for example, ”naïve“ will be converted to ”naive“. This can be useful when we want to use the same YAML file to build a generic random words dictionary as well as a dictionary of logins or domains (which should have no accented characters in them).
 
 #### Params:
 
 - `under_keys`: optionally tells the step to only process the list under the specified keys in the cleanup data hash.
 
-config | input data | output data |
-------- | ----- | ----- |
-| <pre lang="yml">- step: RemoveAccents&#13;  tete: te</pre> | `["naïve", "žluťoučký"]` | `["naive", "zlutoucky"]` |
+#### Examples:
+
+<table>
+<tr><th>configuration</th><th>input data</th><th>output data</th></tr>
+<tbody>
+<tr>
+<td>
+
+```yaml
+- step: RemoveAccents
+```
+</td>
+<td>
+
+```
+["naïve", "résumé"]
+```
+</td>
+<td>
+
+```
+["naive", "resume"]
+```
+</td>
+</tr>
+<tr>
+<td>
+
+```yaml
+- step: RemoveAccents
+  under_keys:
+    - accented_words
+```
+</td>
+<td>
+
+```
+{
+ "accented_words" => ["naïve", "résumé"],
+ "other_words" => ["café", "jalapeño"]
+}
+```
+</td>
+<td>
+
+```
+{
+ "accented_words" => ["naive", "resume"],
+ "other_words" => ["café", "jalapeño"]
+}
+```
+</td>
+</tr>
+</tbody>
+</table>
 
 ## Cleaning steps
 
