@@ -44,12 +44,76 @@ The grouping has two goals:
 
 - `under_keys`: notifies DumpCleaner that the cleanup data is not a list but actually a hash of multiple lists and that the grouping should be done only in lists under the specified keys of the data hash. This is useful in cases when the cleanup data needs to hold multiple unrelated lists of values.
 
+#### Examples:
+
+<table>
+<tr><th>configuration</th><th>input data</th><th>output data</th></tr>
+<tbody>
+<tr>
+<td>
+
+```yaml
+- step: GroupByBytesize
+```
+</td>
+<td>
+
+```
+["newspaper", "show", "rest", "résumé"]
+```
+</td>
+<td>
+
+```
+{
+  "9-9" => ["newspaper"],
+  "4-4" => ["show", "rest"],
+  "6-8" => ["résumé"]
+}
+```
+</td>
+</tr>
+<tr>
+<td>
+
+```yaml
+- step: GroupByBytesize
+  params:
+    under_keys:
+      - words
+```
+</td>
+<td>
+
+```
+{
+  "words" => ["newspaper", "show", "rest", "résumé"],
+  "domains" => ["gmail.com", "example.com"]
+}
+
+```
+</td>
+<td>
+
+```
+{
+  "words" => {
+    "9-9" => ["newspaper"],
+    "4-4" => ["show", "rest"],
+    "6-8" => ["résumé"]
+  },
+  "domains" => ["gmail.com", "example.com"]
+}
+```
+</td>
+</tr>
+</tbody>
+</table>
+
 ### [InspectContext](https://github.com/NejRemeslnici/dump-cleaner/blob/main/lib/dump_cleaner/cleanup/data_source_steps/inspect_context.rb)
 
 This is purely a debugging step that makes DumpCleaner print the current step context. The step context includes:
 
-- `orig_value`: original value taken from the record field
-- `current_value`: i.e. the running state of the result value in the current workflow
 - `type`: the [cleanup type](/README.md#cleanup_types) that this step is working with
 - `record`: the record context taken from the current record (see the `record_context_columns` option above)
 - `cleanup_data`: the data available for the step (only a subset of all data is shown here)
@@ -66,9 +130,110 @@ Care should be taken when loading string data taken from various dictionaries. T
 - `file`: specifies the path to the YAML file; this is a mandatory parameter.
 - `under_key`: optionally makes the step put the loaded data into a hash under the specified key instead of returning the loaded data itself. This is useful for grabbing multiple value lists from different dictionary files.
 
+#### Examples:
+
+<table>
+<tr><th>configuration</th><th>input data</th><th>output data</th></tr>
+<tbody>
+<tr>
+<td>
+
+```yaml
+- step: LoadYamlFile
+  params:
+    file: some_file.yml
+```
+
+```yaml
+# some_file.yml:
+- words
+- to
+- load
+```
+</td>
+<td>
+
+`nil` (or just anything)
+</td>
+<td>
+
+```
+["words", "to", "load"]
+```
+</td>
+</tr>
+<tr>
+<td>
+
+```yaml
+- step: LoadYamlFile
+  params:
+    file: dictionary.yml
+    under_key: words
+```
+
+```yaml
+# dictionary.yml:
+- words
+- to
+- load
+```
+</td>
+<td>
+
+`nil` (or just anything)
+</td>
+<td>
+
+```
+{
+  "words" => ["words", "to", "load"]
+}
+```
+</td>
+</tr>
+<tr>
+<td>
+
+```yaml
+- step: LoadYamlFile
+  params:
+    file: dictionary.yml
+    under_key: words
+```
+
+```yaml
+# dictionary.yml:
+- words
+- to
+- load
+```
+</td>
+<td>
+
+```
+{
+  "existing_key" => ["some", "other", "words"]
+}
+```
+</td>
+<td>
+
+```
+{
+  "existing_key" => ["some", "other", "words"],
+  "words" => ["words", "to", "load"]
+}
+```
+</td>
+</tr>
+</tbody>
+</table>
+
+
 ### [RemoveAccents](https://github.com/NejRemeslnici/dump-cleaner/blob/main/lib/dump_cleaner/cleanup/data_source_steps/remove_accents.rb)
 
-This step uses the [`unicode_normalize`](https://ruby-doc.org/stdlib-2.4.0/libdoc/unicode_normalize/rdoc/String.html) method to remove all accents from all values in the cleanup data, i.e., for example, ”naïve“ will be converted to ”naive“. This can be useful when we want to use the same YAML file to build a generic random words dictionary as well as a dictionary of logins or domains (which should have no accented characters in them).
+This step uses the [`unicode_normalize`](https://ruby-doc.org/stdlib-2.4.0/libdoc/unicode_normalize/rdoc/String.html) method to remove all accents from all values in the cleanup data, i.e., for example, ”naïve“ will be converted to ”naive“. This can be useful when we want to use the same YAML file to build a generic random words dictionary as well as a dictionary of logins, domains or other words that should have no accented characters in them.
 
 #### Params:
 
@@ -104,8 +269,9 @@ This step uses the [`unicode_normalize`](https://ruby-doc.org/stdlib-2.4.0/libdo
 
 ```yaml
 - step: RemoveAccents
-  under_keys:
-    - accounts
+  params:
+    under_keys:
+      - accounts
 ```
 </td>
 <td>
@@ -169,7 +335,14 @@ This step replaces the current value using a generated a random string with the 
 
 ### [InspectContext](https://github.com/NejRemeslnici/dump-cleaner/blob/main/lib/dump_cleaner/cleanup/cleaning_steps/inspect_context.rb)
 
-This step serves the exact same purpose as the [InspectContext](#inspectcontext) step in the ”data source“ workflow.
+This is purely a debugging step that makes DumpCleaner print the current step context. The step context includes:
+
+- `orig_value`: original value taken from the table record field
+- `current_value`: i.e. the running state of the result value in the current workflow
+- `type`: the [cleanup type](/README.md#cleanup_types) that this step is working with
+- `record`: the record context taken from the current record (see the `record_context_columns` option above)
+- `cleanup_data`: the data available for the step (only a subset of all data is shown here)
+- `repetition`: the current iteration in the uniqueness loop.
 
 ### [RandomizeEmail](https://github.com/NejRemeslnici/dump-cleaner/blob/main/lib/dump_cleaner/cleanup/cleaning_steps/randomize_email.rb)
 
