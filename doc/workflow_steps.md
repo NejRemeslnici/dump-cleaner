@@ -181,7 +181,7 @@ Care should be taken when loading string data taken from various dictionaries. T
 </td>
 <td>
 
-`nil` (or just anything)
+`nil`
 </td>
 <td>
 
@@ -213,7 +213,7 @@ Care should be taken when loading string data taken from various dictionaries. T
 
 ```
 {
-  "existing_key" => ["some", "other", "words"]
+  "other" => ["some", "other", "words"]
 }
 ```
 </td>
@@ -221,8 +221,8 @@ Care should be taken when loading string data taken from various dictionaries. T
 
 ```
 {
-  "existing_key" => ["some", "other", "words"],
-  "words" => ["words", "to", "load"]
+  "words" => ["words", "to", "load"],
+  "other" => ["some", "other", "words"]
 }
 ```
 </td>
@@ -304,9 +304,83 @@ In general, the steps can either transform the current value or the [cleanup dat
 
 ### [AddRepetitionSuffix](https://github.com/NejRemeslnici/dump-cleaner/blob/main/lib/dump_cleaner/cleanup/cleaning_steps/add_repetition_suffix.rb)
 
-This step add a repetition suffix to the current value. This is useful in unique columns when the randomized value conflicts with a value determined for one of the earlier records. As described in the [Uniqueness section](/README.md#unique-values), this step keeps the string length and byte size untouched. The step never adds suffix for repetition 0, i.e. for the very first iteration of the uniqueness loop or when there is no uniqueness requested in the first place.
+This step may replace the end of the current value string with a repetition suffix. This is useful in unique columns when the randomized value conflicts with a value determined for one of the earlier records. As described in the [Uniqueness section](/README.md#unique-values), this step keeps the string length and byte size untouched. The step never adds a suffix for repetition 0, i.e. for the very first iteration of the uniqueness loop or when there is no uniqueness requested in the first place.
 
-If the current value is too small to even hold a repetition suffix, it is replaced by a randomly generated string of equal length.
+If the current value is too small to even hold a repetition suffix, it is replaced by a randomly generated alphanumeric string of equal length.
+
+#### Examples:
+
+<table>
+<tr><th>configuration</th><th>input value</th><th>output value</th></tr>
+<tbody>
+<tr style="vertical-align: top">
+<td>
+
+```yaml
+- step: AddRepetitionSuffix
+```
+</td>
+<td>
+
+```
+"something"
+```
+
+(when repetition is 0)
+</td>
+<td>
+
+```
+"something"
+```
+</td>
+</tr>
+<tr style="vertical-align: top">
+<td>
+
+```yaml
+- step: AddRepetitionSuffix
+```
+</td>
+<td>
+
+```
+"something"
+```
+
+(when repetition is 23)
+</td>
+<td>
+
+```
+"somethi23"
+```
+</td>
+</tr>
+<tr style="vertical-align: top">
+<td>
+
+```yaml
+- step: AddRepetitionSuffix
+```
+</td>
+<td>
+
+```
+"a"
+```
+
+(when repetition is 3)
+</td>
+<td>
+
+```
+"M"
+```
+</td>
+</tr>
+</tbody>
+</table>
 
 ### [FillUpWithString](https://github.com/NejRemeslnici/dump-cleaner/blob/main/lib/dump_cleaner/cleanup/cleaning_steps/fill_up_with_string.rb)
 
@@ -315,8 +389,129 @@ This step replaces the current value with a predefined static string. By default
 #### Params:
 
 - `string`: the string to replace the current value with; it is automatically truncated or prolonged to the desired number of bytes; the default string is `"anonymized <type>"` where `<type>` is the name of the current [`cleanup_type`](/README.md#cleanup_types).
-- `padding`: if the truncated or prolonged string still does not perfectly fit the desired byte size (due to multi-byte characters in the string and/or original value), the string is padded with the contents of this parameter. It should normally be set to a 1-byte single character. By default this is a space `" "`.
+- `padding`: serves as the separator when the `string` needs to be prolonged by repeating; by default this is a space `" "`.
 - `strict_bytesize_check`: if set to true, the step will raise an error if the `string` byte size differs from the byte size of the current value. This is useful for resetting all values of a given table column to the same string and ensuring byte size consistency along the way.
+
+#### Examples:
+
+<table>
+<tr><th>configuration</th><th>input value</th><th>output value</th></tr>
+<tbody>
+<tr style="vertical-align: top">
+<td>
+
+```yaml
+- step: FillUpWithString
+```
+</td>
+<td>
+
+```
+"Santiago de León de Caracas"
+```
+(when cleanup type is "city")
+</td>
+<td>
+
+```
+"anonymized city anonymized c"
+```
+</td>
+</tr>
+<tr style="vertical-align: top">
+<td>
+
+```yaml
+- step: FillUpWithString
+```
+</td>
+<td>
+
+```
+"Caracas"
+```
+
+(when cleanup type is "city")
+</td>
+<td>
+
+```
+"anonymi"
+```
+</td>
+</tr>
+<tr style="vertical-align: top">
+<td>
+
+```yaml
+- step: FillUpWithString
+  params:
+    string: City
+```
+</td>
+<td>
+
+```
+"Caracas"
+```
+
+</td>
+<td>
+
+```
+"City Ci"
+```
+</td>
+</tr>
+<tr style="vertical-align: top">
+<td>
+
+```yaml
+- step: FillUpWithString
+  params:
+    string: City
+    padding: "-"
+```
+</td>
+<td>
+
+```
+"Caracas"
+```
+
+</td>
+<td>
+
+```
+"City-Ci"
+```
+</td>
+</tr>
+<tr style="vertical-align: top">
+<td>
+
+```yaml
+- step: FillUpWithString
+  params:
+    string: hash
+    strict_bytesize_check: true
+```
+</td>
+<td>
+
+```
+"3aa9177571b27"
+```
+
+</td>
+<td>
+
+N/A (an error is raised)
+
+</td>
+</tr>
+</tbody>
+</table>
 
 ### [GenerateRandomString](https://github.com/NejRemeslnici/dump-cleaner/blob/main/lib/dump_cleaner/cleanup/cleaning_steps/generate_random_string.rb)
 
@@ -332,6 +527,144 @@ This step replaces the current value using a generated a random string with the 
   - `numeric`: numbers only
 
   Or, the character set may be passed in explicitly as an array of characters.
+
+#### Examples:
+
+<table>
+<tr><th>configuration</th><th>input value</th><th>output value</th></tr>
+<tbody>
+<tr style="vertical-align: top">
+<td>
+
+```yaml
+- step: GenerateRandomString
+```
+</td>
+<td>
+
+```
+"something"
+```
+</td>
+<td>
+
+```
+"QXSq31BxY"
+```
+</td>
+</tr>
+<tr style="vertical-align: top">
+<td>
+
+```yaml
+- step: GenerateRandomString
+  params:
+    character_set: alpha
+```
+</td>
+<td>
+
+```
+"something"
+```
+</td>
+<td>
+
+```
+"sktfNNGQZ"
+```
+</td>
+</tr>
+<tr style="vertical-align: top">
+<td>
+
+```yaml
+- step: GenerateRandomString
+  params:
+    character_set: lowercase
+```
+</td>
+<td>
+
+```
+"something"
+```
+</td>
+<td>
+
+```
+"suyqbynno"
+```
+</td>
+</tr>
+<tr style="vertical-align: top">
+<td>
+
+```yaml
+- step: GenerateRandomString
+  params:
+    character_set: uppercase
+```
+</td>
+<td>
+
+```
+"something"
+```
+</td>
+<td>
+
+```
+"SUYQBYNNO"
+```
+</td>
+</tr>
+<tr style="vertical-align: top">
+<td>
+
+```yaml
+- step: GenerateRandomString
+  params:
+    character_set: numeric
+```
+</td>
+<td>
+
+```
+"something"
+```
+</td>
+<td>
+
+```
+"098877228"
+```
+</td>
+</tr>
+<tr style="vertical-align: top">
+<td>
+
+```yaml
+- step: GenerateRandomString
+  params:
+    character_set: ["a", "b", "c"]
+```
+</td>
+<td>
+
+```
+"something"
+```
+</td>
+<td>
+
+```
+"bccccaaca"
+```
+</td>
+</tr>
+</tbody>
+</table>
 
 ### [InspectContext](https://github.com/NejRemeslnici/dump-cleaner/blob/main/lib/dump_cleaner/cleanup/cleaning_steps/inspect_context.rb)
 
