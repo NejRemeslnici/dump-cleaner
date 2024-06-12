@@ -389,7 +389,9 @@ This step replaces the current value with a predefined static string. By default
 #### Params:
 
 - `string`: the string to replace the current value with; it is automatically truncated or prolonged to the desired number of bytes; the default string is `"anonymized <type>"` where `<type>` is the name of the current [`cleanup_type`](/README.md#cleanup_types).
-- `padding`: serves as the separator when the `string` needs to be prolonged by repeating; by default this is a space `" "`.
+- `padding`: this parameter should normally be set to a single 1-byte character; by default it is a space `" "`; this parameter serves two distinct roles:
+    1. it serves as the separator when the `string` needs to be prolonged by repeating.
+    2. if the truncated or prolonged string still does not perfectly fit the desired byte size (due to multi-byte characters in the string and/or original value), the string is padded with the contents of this parameter.
 - `strict_bytesize_check`: if set to true, the step will raise an error if the `string` byte size differs from the byte size of the current value. This is useful for resetting all values of a given table column to the same string and ensuring byte size consistency along the way.
 
 #### Examples:
@@ -484,6 +486,30 @@ This step replaces the current value with a predefined static string. By default
 
 ```
 "City-Ci"
+```
+</td>
+</tr>
+<tr>
+<td>
+
+```yaml
+- step: FillUpWithString
+  params:
+    string: ab€
+    padding: "-"
+```
+</td>
+<td>
+
+```
+"abcd"
+```
+
+</td>
+<td>
+
+```
+"ab--"
 ```
 </td>
 </tr>
