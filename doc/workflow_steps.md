@@ -76,7 +76,7 @@ This step uses the [`unicode_normalize`](https://ruby-doc.org/stdlib-2.4.0/libdo
 
 config | input data | output data |
 ------- | ----- | ----- |
-| <pre lang="yml">- step: RemoveAccents<br>  tete: te</pre> | `["naïve", "žluťoučký"]` | `["naive", "zlutoucky"]` |
+| <pre lang="yml">- step: RemoveAccents&#13;  tete: te</pre> | `["naïve", "žluťoučký"]` | `["naive", "zlutoucky"]` |
 
 ## Cleaning steps
 
