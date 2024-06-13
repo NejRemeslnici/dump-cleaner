@@ -76,7 +76,7 @@ MySQLShell JS> util.dumpSchemas(["db"], "mysql_shell_dump");
 The dump contains a `users` table with the following sample contents:
 
 ```sh
-$ zstdcat spec/support/data/mysql_shell_dump/db@users@@0.tsv.zst
+$ zstdcat mysql_shell_dump/db@users@@0.tsv.zst
 
 # id    name         email                         phone_number
 1       Johnson      johnson@gmail.com             +420774678763
@@ -94,7 +94,7 @@ $ dump_cleaner -f mysql_shell_dump -t mysql_shell_anonymized_dump \
 a destination dump directory gets created with a copy of the source dump but with the data in the `users` table randomized, in this case in the following way:
 
 ```sh
-$ zstdcat spec/support/data/mysql_shell_anonymized_dump/db@users@@0.tsv.zst
+$ zstdcat mysql_shell_anonymized_dump/db@users@@0.tsv.zst
 
 # id    name         email                         phone_number
 1       Jackson      variety@gmail.com             +420774443735
