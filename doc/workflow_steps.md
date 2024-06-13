@@ -726,7 +726,7 @@ If an invalid email address is encountered, a warning is logged and the processi
 #### Examples:
 
 <table>
-<tr><th>configuration</th><th>data</th><th>input value</th><th>output value</th></tr>
+<tr><th>configuration</th><th>cleanup data</th><th>input value</th><th>output value</th></tr>
 <tbody>
 <tr>
 <td>
@@ -907,25 +907,235 @@ If an invalid formatted number is encountered (i.e. a number which does not matc
 
 #### Examples:
 
-If `1-123-456-789` is the current value then the `format` of `(?<front>\d-\d{3}-)(?<x1>\d{3})(?<hyphen>-)(?<x2>\d{3})` would randomize the last six digits of the value, resulting in e.g. `1-123-786-802`. The match groups named `x1` and `x2` cover the parts that should get randomized, other match groups cover the rest of the value which is left alone.
+<table>
+<tr><th>configuration</th><th>input value</th><th>output value</th></tr>
+<tbody>
+<tr>
+<td>
+
+```yaml
+- step: RandomizeFormattedNumber
+  params:
+    format: (?<a>[^-]-)(?<x>\d{3})
+```
+</td>
+<td>
+
+```
+"anything-123"
+```
+</td>
+<td>
+
+```
+"anything-879"
+```
+</td>
+</tr>
+<tr>
+<td>
+
+```yaml
+- step: RandomizeFormattedNumber
+  params:
+    format: (?<front>\d-\d{3}-)(?<x1>\d{3})(?<hyphen>-)(?<x2>\d{3})
+```
+</td>
+<td>
+
+```
+"1-123-456-789"
+```
+</td>
+<td>
+
+```
+"1-123-786-802"
+```
+</td>
+</tr>
+<tr>
+<td>
+
+```yaml
+- step: RandomizeFormattedNumber
+  params:
+    format: (?<front>\d)(?<x>\d{3})(?<back>.*)
+```
+</td>
+<td>
+
+```
+"12345"
+```
+</td>
+<td>
+
+```
+"18865"
+```
+</td>
+</tr>
+</tbody>
+</table>
 
 ### [RandomizeNumber](https://github.com/NejRemeslnici/dump-cleaner/blob/main/lib/dump_cleaner/cleanup/cleaning_steps/randomize_number.rb)
 
-The goal of this step is to randomize a floating point or integer number to a certain extent. I.e., the current value is not fully replaced, it is slightly and randomly shifted instead. The number is converted to a floating point number before randomization and the final sanitized value is rounded to the same decimal places as was the original.
+The goal of this step is to randomize a floating point or integer number to a certain extent. I.e., the current value is not fully replaced, it is randomly shifted within a certain limit instead. The number is converted to a floating point number before randomization and the final sanitized value is rounded to the same decimal places as the original.
 
-Note that the sign of the number is never changed, even in cases when the calculation leads to a number with the opposite sign. This is due to the need to keep the byte size of the value intact under all circumstances.
+Note that the sign of the number is never changed, even in cases when the calculation leads to a number with an opposite sign. This is to keep the byte size of the value the same under all circumstances.
 
 #### Params:
 
-- `difference_within`: maximum difference between the original value and the randomized one. The limit is exclusive, i.e. the final difference will always be at least a bit smaller and will never reach the maximum difference itself.
+- `difference_within`: the maximum difference between the original value and the randomized one. The limit is exclusive, i.e. the final difference will always be at least a bit smaller and will never reach the maximum difference itself; this param defaults to 1.0.
+
+#### Examples:
+
+<table>
+<tr><th>configuration</th><th>input value</th><th>output value</th></tr>
+<tbody>
+<tr>
+<td>
+
+```yaml
+- step: RandomizeNumber
+```
+</td>
+<td>
+
+```
+"123.45"
+```
+</td>
+<td>
+
+```
+"122.82"
+```
+</td>
+</tr>
+<tr>
+<td>
+
+```yaml
+- step: RandomizeNumber
+  params:
+    difference_within: 10
+```
+</td>
+<td>
+
+```
+"-123"
+```
+</td>
+<td>
+
+```
+"-127"
+```
+</td>
+</tr>
+<tr>
+<td>
+
+```yaml
+- step: RandomizeNumber
+```
+</td>
+<td>
+
+```
+"123"
+```
+</td>
+<td>
+
+```
+"123"
+```
+(the same due to `difference_within` exclusiveness and no decimal point)
+</td>
+</tr>
+</tbody>
+</table>
 
 ### [SelectDataByBytesize](https://github.com/NejRemeslnici/dump-cleaner/blob/main/lib/dump_cleaner/cleanup/cleaning_steps/select_data_by_bytesize.rb)
 
-This step expects the cleanup data to be a hash of lists grouped by the byte size (see [GroupByBytesize](#groupbybytesize)) and selects the list of values that have the same length and bytesize as the currently processed value.
+This step expects the cleanup data to be a hash of lists grouped by the byte size (see [GroupByBytesize](#groupbybytesize)) and selects the list of values that have the same length and bytesize as the currently processed value. It does not affect the value, only the cleanup data.
+
+#### Examples:
+
+<table>
+<tr><th>configuration</th><th>input cleanup data</th><th>value</th><th>output cleanup data</th></tr>
+<tbody>
+<tr>
+<td>
+
+```yaml
+- step: SelectDataByBytesize
+```
+</td>
+<td>
+
+```
+{
+  "5-5" => ["waste", "octet"],
+  "6-6" => ["sunfly", "echoes"]
+}
+```
+</td>
+<td>
+
+```
+"Alice"
+```
+</td>
+<td>
+
+```
+["waste", "octet"]
+```
+</td>
+</tr>
+<tr>
+<td>
+
+```yaml
+- step: SelectDataByBytesize
+```
+</td>
+<td>
+
+```
+{
+  "5-5" => ["waste", "octet"],
+  "6-6" => ["sunfly", "echoes"]
+  "6-7" => ["Brontë", "exposé"]
+}
+```
+</td>
+<td>
+
+```
+"frappé"
+```
+</td>
+<td>
+
+```
+["Brontë", "exposé"]
+```
+</td>
+</tr>
+</tbody>
+</table>
 
 ### [SelectDataByPattern](https://github.com/NejRemeslnici/dump-cleaner/blob/main/lib/dump_cleaner/cleanup/cleaning_steps/select_data_by_pattern.rb)
 
-This step expects the cleanup data to be a hash of lists and selects the list determined by matching the current value against a set of regexp patterns. For example, let’s have two lists of names, male and female names, in the cleanup data hash and let’s pretend that we can guess the gender from a pattern in a person’s last name reasonably well (which is indeed possible in some languages). We can then for example set up a pattern to select female data and leave all other matches to male data.
+This step expects the cleanup data to be a hash of lists and selects the list determined by matching the current value against a set of regexp patterns. It does not affect the value, only the cleanup data.
+
+For example, let’s have two lists of names, male and female names, in the cleanup data hash and let’s pretend that we can guess the gender from a pattern in a person’s last name reasonably well (which is indeed possible in some languages). We can then for example set up a pattern to select female data and leave all other matches to male data.
 
 #### Params:
 
@@ -934,6 +1144,122 @@ This step expects the cleanup data to be a hash of lists and selects the list de
   - `flags`: optional [regexp flags](https://docs.ruby-lang.org/en/master/Regexp.html#class-Regexp-label-Modes) (modes), such as `"i"` for case-insensitive matching
   - `key`: the key in cleanup data to select if the `pattern` matches the current value
 - `default_key`: this key is selected from the cleanup data hash if no `pattern` matches the current value (default: `nil`).
+
+#### Examples:
+
+<table>
+<tr><th>configuration</th><th>input cleanup data</th><th>value</th><th>output cleanup data</th></tr>
+<tbody>
+<tr>
+<td>
+
+```yaml
+- step: SelectDataByPattern
+  params:
+    patterns:
+      - pattern: (ful|tic|ous)$
+        key: adjectives
+      - pattern: (ly|ward|wise)$
+        key: adverbs"
+    default_key: words
+```
+</td>
+<td>
+
+```
+{
+  "adjectives" => ["porous", "calm", "athletic"],
+  "adverbs" => ["softly", "outward", "likewise"],
+  "words" => ["other", "random", "words"]
+}
+```
+</td>
+<td>
+
+```
+"thoroughly"
+```
+</td>
+<td>
+
+```
+["softly", "outward", "likewise"]
+```
+</td>
+</tr>
+<tr>
+<td>
+
+```yaml
+- step: SelectDataByPattern
+  params:
+    patterns:
+      - pattern: (ful|tic|ous)$
+        key: adjectives
+      - pattern: (ly|ward|wise)$
+        key: adverbs"
+    default_key: words
+```
+</td>
+<td>
+
+```
+{
+  "adjectives" => ["porous", "calm", "athletic"],
+  "adverbs" => ["softly", "outward", "likewise"],
+  "words" => ["other", "random", "words"]
+}
+```
+</td>
+<td>
+
+```
+"second"
+```
+</td>
+<td>
+
+```
+["other", "random", "words"]
+```
+</td>
+</tr>
+<tr>
+<td>
+
+```yaml
+- step: SelectDataByPattern
+  params:
+    patterns:
+      - pattern: (ful|tic|ous)$
+        key: adjectives
+        flags: i
+```
+</td>
+<td>
+
+```
+{
+  "adjectives" => ["porous", "calm", "athletic"],
+  "adverbs" => ["softly", "outward", "likewise"]
+}
+```
+</td>
+<td>
+
+```
+"PRECIOUS"
+```
+</td>
+<td>
+
+```
+["porous", "calm", "athletic"]
+```
+</td>
+</tr>
+</tbody>
+</table>
 
 ### [TakeSample](https://github.com/NejRemeslnici/dump-cleaner/blob/main/lib/dump_cleaner/cleanup/cleaning_steps/take_sample.rb)
 
@@ -944,8 +1270,128 @@ If the cleanup data is empty or missing, the procedure switches to the [failure 
 #### Params:
 
 - `uniqueness_strategy`: the strategy this step undertakes when it hits a conflicting value while uniqueness is desired:
-  - `resample`: the step takes another random sample from the same data
+  - `resample`: the step takes another random sample from the same data; this is the default
   - `suffix`: the step adds a [repetition suffix](#addrepetitionsuffix) to the sample taken in the first repetition loop.
+
+#### Examples:
+
+<table>
+<tr><th>configuration</th><th>cleanup data</th><th>input value</th><th>output value</th></tr>
+<tbody>
+<tr>
+<td>
+
+```yaml
+- step: TakeSample
+```
+</td>
+<td>
+
+```ruby
+["sunfly", "echoes", "talent"]
+```
+</td>
+<td>
+
+```
+"jaguar"
+```
+(when repetition is: 0)
+</td>
+<td>
+
+```
+"talent"
+```
+</td>
+</tr>
+<tr>
+<td>
+
+```yaml
+- step: TakeSample
+```
+</td>
+<td>
+
+```ruby
+["sunfly", "echoes", "talent"]
+```
+</td>
+<td>
+
+```
+"jaguar"
+```
+(when repetition is: 1)
+</td>
+<td>
+
+```
+"echoes"
+```
+</td>
+</tr>
+<tr>
+<td>
+
+```yaml
+- step: TakeSample
+  params:
+    uniqueness_strategy: suffix
+```
+</td>
+<td>
+
+```ruby
+["sunfly", "echoes", "talent"]
+```
+</td>
+<td>
+
+```
+"jaguar"
+```
+(when repetition is: 0)
+</td>
+<td>
+
+```
+"talent"
+```
+</td>
+</tr>
+<tr>
+<td>
+
+```yaml
+- step: TakeSample
+  params:
+    uniqueness_strategy: suffix
+```
+</td>
+<td>
+
+```ruby
+["sunfly", "echoes", "talent"]
+```
+</td>
+<td>
+
+```
+"jaguar"
+```
+(when repetition is: 1)
+</td>
+<td>
+
+```
+"talen1"
+```
+</td>
+</tr>
+</tbody>
+</table>
 
 ## Failure steps
 
