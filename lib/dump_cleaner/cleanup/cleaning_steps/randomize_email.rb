@@ -59,11 +59,18 @@ module DumpCleaner
         end
 
         def validate_params(domains_to_keep_data_key:, words_data_key:)
-          unless cleanup_data.respond_to?(:key) &&
-                 cleanup_data.key?(domains_to_keep_data_key) && cleanup_data.key?(words_data_key)
-            raise_params_error("The cleanup_data does not contain the dictionary keys
-                                \"#{domains_to_keep_data_key}\" and \"#{words_data_key})\"".gsub(/\s+/, " "))
+          raise("The cleanup_data must be a hash") unless cleanup_data.respond_to?(:key)
+
+          unless !domains_to_keep_data_key || domains_to_keep_data_key.empty? ||
+                 cleanup_data.key?(domains_to_keep_data_key)
+            raise_params_error("The cleanup_data does not contain the \"#{domains_to_keep_data_key}\" key.
+                                Either add the domains to the cleanup data hash or set the domains_to_keep_data_key
+                                to null or an empty string.".gsub(/\s+/, " "))
           end
+
+          return if cleanup_data.key?(words_data_key)
+
+          raise_params_error("The cleanup_data does not contain the \"#{words_data_key}\" key")
         end
       end
     end
