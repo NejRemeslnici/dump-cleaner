@@ -275,6 +275,11 @@ The `keep_same_conditions` property may define a list of conditions that will pr
 
 If multiple conditions are specified, they are logically OR-ed, i.e. if _any_ of the conditions yields true, the whole statement yields true and the record or field cleaning is skipped.
 
+## Ideas for future development
+
+- The issue with random seeds being dependent on the primary key (and thus artificially increasing data variance): this behavior should probably be optional.
+- The `RandomizeFormattedNumber` step could be generalized to `RandomizeFormattedString`, allowing to replace any matching part of the string with not only numbers, but alphanumeric etc. as well. The `RandomizeEmail` could then be rewritten using this new step.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
