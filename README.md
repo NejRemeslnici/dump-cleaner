@@ -164,6 +164,8 @@ There are some practical limits to this consistency though:
 - if the randomization works with a dictionary and that dictionary is updated, the cleaned data will change, too, and
 - if [uniqueness](#unique-values) of a column is requested, the randomization process is retried for that field until a unique value is found; this makes the randomization rely on the values of the previously encountered conflicting values and if _any_ of them changes in the source data, the final cleaned value changes, too.
 
+NOTE: The fact that the [RNG](https://en.wikipedia.org/wiki/Random_number_generation) seed is also dependent on the primary key has one more potentially undesired consequence: the same original value will be cleaned to different values in records with different primary keys, thus adding an artificial variance to the data. We will look into this issue in a future release.
+
 ## Configuration
 
 A basic DumpCleaner configuration file might look like this:
