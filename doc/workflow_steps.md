@@ -22,15 +22,18 @@ step     | main purpose
 [RandomizeEmail](#randomizeemail) | randomizes parts of an email address
 [RandomizeFormattedNumber](#randomizeformattednumber) | randomizes parts of a formatted number
 [RandomizeNumber](#randomizenumber) | randomly shifts a number to a certain extent
-[SelectDataByBytesize](#selectdatabybytesize) | selects a subset by value length and byte size from the data
-[SelectDataByPattern](#selectdatabypattern) | selects a subset by matching a pattern from the data
+[SelectDataByBytesize](#selectdatabybytesize) | selects a data subset by value length and byte size
+[SelectDataByPattern](#selectdatabypattern) | selects a data subset by matching a pattern against the value
 [TakeSample](#takesample) | takes a random sample from the data
 
 #### [Failure steps](#failure-steps-1)
 
 ## Data source steps
 
-The data source steps **prepare the data** (**”cleanup data“**) that can be later used in the [cleaning workflows](#cleaning-steps-1). These steps are linked to the [`cleanup_type`](/README.md#cleanup_types) itself and have no notion of the individual records in the dump table data. Steps are listed in alphabetical order:
+The data source steps **prepare the data** (**”cleanup data“**) that can be later used in the [cleaning workflows](#cleaning-steps-1). These steps are linked to the [`cleanup_type`](/README.md#cleanup_types) itself and have no notion of the individual records in the dump table data. The data output by the last step in the data source workflow is **cached** and reused as the initial data when running the cleaning workflows for the same type.
+
+
+Steps are listed in alphabetical order:
 
 ### [GroupByBytesize](https://github.com/NejRemeslnici/dump-cleaner/blob/main/lib/dump_cleaner/cleanup/data_source_steps/group_by_bytesize.rb)
 
@@ -717,8 +720,180 @@ If an invalid email address is encountered, a warning is logged and the processi
 
 #### Params:
 
-- `domains_to_keep_data_key`: the key in the cleanup data hash which contains the list of well-known domains; email address from such domains will keep the domain part unsanitized; default value: `domains_to_keep`
-- `words_data_key`: the key in the cleanup data hash which contains the list of words to take random samples from; the list should be grouped by the byte size (use [`GroupByBytesize`](#groupbybytesize) with the `under_keys` param); default value: `words`.
+- `domains_to_keep_data_key`: the key in the cleanup data hash which contains the list of well-known domains; email addresses from such domains will keep the domain part intact; it may be set to `nil` or an empty string, in which case the step will always repalce even the domain name with a random word; default value: `domains_to_keep`
+- `words_data_key`: the key in the cleanup data hash which contains the list of words to take random samples from; the list must be grouped by the byte size (use [`GroupByBytesize`](#groupbybytesize) with the `under_keys` param); default value: `words`.
+
+#### Examples:
+
+<table>
+<tr><th>configuration</th><th>data</th><th>input value</th><th>output value</th></tr>
+<tbody>
+<tr>
+<td>
+
+```yaml
+- step: RandomizeEmail
+```
+</td>
+<td>
+
+```ruby
+{
+  "domains_to_keep" => ["gmail.com", "example.com"],
+  "words" => {
+    "6-6" => ["sunfly", "echoes"],
+    "7-7" => ["warless", "cadence"]
+  }
+}
+```
+</td>
+<td>
+
+```
+"evelyn@adomain.com"
+```
+</td>
+<td>
+
+```
+"sunfly@cadence.com"
+```
+</td>
+</tr>
+<tr>
+<td>
+
+```yaml
+- step: RandomizeEmail
+```
+</td>
+<td>
+
+```ruby
+{
+  "domains_to_keep" => ["gmail.com", "example.com"],
+  "words" => {
+    "5-5" => ["waste", "octet"],
+    "6-6" => ["sunfly", "echoes"]
+  }
+}
+```
+</td>
+<td>
+
+```
+"evelyn.cohen@gmail.com"
+```
+</td>
+<td>
+
+```
+"sunfly.octet@gmail.com"
+```
+</td>
+</tr>
+<tr>
+<td>
+
+```yaml
+- step: RandomizeEmail
+```
+</td>
+<td>
+
+```ruby
+{
+  "domains_to_keep" => ["gmail.com", "example.com"],
+  "words" => {
+    "6-6" => ["sunfly", "echoes"],
+    "7-7" => ["warless", "cadence"]
+  }
+}
+```
+</td>
+<td>
+
+```
+"evelyn@adomain.com"
+```
+</td>
+<td>
+
+```
+"sunfly@cadence.com"
+```
+</td>
+</tr>
+<tr>
+<td>
+
+```yaml
+- step: RandomizeEmail
+  params:
+    domains_to_keep_data_key: "domains"
+    words_data_key: "dictionary"
+```
+</td>
+<td>
+
+```ruby
+{
+  "domains" => ["gmail.com", "example.com"],
+  "dictionary" => {
+    "6-6" => ["sunfly", "echoes"],
+    "7-7" => ["warless", "cadence"]
+  }
+}
+```
+</td>
+<td>
+
+```
+"evelyn@adomain.com"
+```
+</td>
+<td>
+
+```
+"sunfly@cadence.com"
+```
+</td>
+</tr>
+<tr>
+<td>
+
+```yaml
+- step: RandomizeEmail
+  params:
+    domains_to_keep_data_key: ""
+```
+</td>
+<td>
+
+```ruby
+{
+  "dictionary" => {
+    "5-5" => ["waste", "octet"],
+    "6-6" => ["sunfly", "echoes"]
+  }
+}
+```
+</td>
+<td>
+
+```
+"evelyn@gmail.com"
+```
+</td>
+<td>
+
+```
+"sunfly@waste.com"
+```
+</td>
+</tr>
+</tbody>
+</table>
 
 ### [RandomizeFormattedNumber](https://github.com/NejRemeslnici/dump-cleaner/blob/main/lib/dump_cleaner/cleanup/cleaning_steps/randomize_formatted_number.rb)
 
