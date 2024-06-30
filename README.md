@@ -32,7 +32,7 @@ That said, having an exact production data copy at developers’ machines is ins
 - It can **ignore certain columns and/or records** in the dump based on a set of conditions to e.g. skip randomizing contact information of internal admin users.
 - It obeys the inherent limits of the given dump format, if any (for example, it takes great care to keep the length and byte size of the updated data the same as original so as not to corrupt the MySQL Shell dump chunk index files).
 
-All in all, DumpCleaner is just a „more specialized and configurable `awk`“, i.e. a text replacement tool.
+All in all, DumpCleaner is just a _”more specialized and configurable `awk`“_, i.e. a text replacement tool.
 
 #### Non-goals and limitations
 
@@ -44,7 +44,7 @@ All in all, DumpCleaner is just a „more specialized and configurable `awk`“,
 
 ## Installation
 
-Install the gem and add to the application's Gemfile by executing:
+To install the gem, add to the application's Gemfile by executing:
 
     $ bundle add dump_cleaner
 
