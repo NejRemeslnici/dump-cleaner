@@ -1,3 +1,5 @@
+![Dump Cleaner](dump_cleaner.png)
+
 # DumpCleaner
 
 DumpCleaner is a tool that can randomize or anonymize your database dumps. Currently, it works with the [MySQL Shell Dump](https://dev.mysql.com/doc/mysql-shell/8.4/en/mysql-shell-utilities-dump-instance-schema.html) format (other formats may be added later).
