@@ -44,7 +44,7 @@ All in all, DumpCleaner is just a _”more specialized and configurable `awk`“
 
 ## Installation
 
-To install the gem, add to the application's Gemfile by executing:
+To install the gem, add it to the application's Gemfile by executing:
 
     $ bundle add dump_cleaner
 
