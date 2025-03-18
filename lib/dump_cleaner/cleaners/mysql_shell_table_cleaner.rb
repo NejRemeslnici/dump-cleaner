@@ -28,7 +28,7 @@ module DumpCleaner
 
         DumpCleaner::Cleanup::Uniqueness::CaseInsensitiveCache.instance.clear
 
-        Dir.glob("#{options.source_dump_path}/#{table_info.db_at_table}@@*.#{table_info.extension}").each do |file|
+        Dir.glob("#{options.source_dump_path}/#{table_info.db_at_table}@*.#{table_info.extension}").each do |file|
           Open3.pipeline_r(pipe_source_args(file)) do |tsv_data, _wait_thread|
             Open3.pipeline_w(pipe_sink_args(destination_file_for(file))) do |zstd_out, _wait_thread|
               tsv_data.each_line do |line|
